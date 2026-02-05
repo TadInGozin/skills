@@ -1,26 +1,10 @@
 ---
 name: llm-council
-description: |
-  Multi-LLM deliberation protocol for complex questions requiring diverse perspectives.
-
-  Use this skill when:
-  - Technical decisions need multiple viewpoints
-  - Code reviews benefit from cross-model analysis
-  - Questions have no single correct answer
-  - Decisions require weighing trade-offs
-
-  IMPORTANT: This skill REQUIRES access to external LLMs (via MCP or API).
-  If no external LLM is available, do NOT use this skill.
-
-  Keywords: deliberation, multi-model, consensus, evaluation, synthesis
-
+description: Coordinate multiple LLMs for deliberation. Trigger words: "council", "deliberate", "multi-model". Use for architecture decisions, trade-off analysis, or questions needing diverse AI perspectives.
 license: MIT
-compatibility: |
-  Requires MCP or API access to external LLMs.
-  Dynamically discovers available LLM tools at runtime.
 metadata:
   author: llm-council
-  version: "4.4.0"
+  version: "4.4.1"
   category: decision-making
 allowed-tools: Read
 ---

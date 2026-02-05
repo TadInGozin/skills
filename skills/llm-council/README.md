@@ -2,7 +2,7 @@
 
 > Multi-LLM Deliberation Protocol for AI Agents
 
-[![Version](https://img.shields.io/badge/version-4.4.0-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-4.4.1-blue.svg)]()
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
 
 ## Overview

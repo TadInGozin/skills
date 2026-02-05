@@ -1,7 +1,7 @@
 # LLM Council - Standard Protocol Manifest v4.4
 # Manifest format: indexes prompts and rubrics, auto-detects evaluation criteria
 
-version: "4.4"
+version: "4.4.1"
 
 metadata:
   name: standard-council
