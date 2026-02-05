@@ -340,6 +340,7 @@ As Chairman:
 3. **Integrate Complementary Points**: Unique contributions from others
 4. **Correct Any Errors**: Fix identified inaccuracies
 5. **Present Final Answer**: Clear, structured synthesis
+6. **Explain in Natural Language**: Why this is the best answer
 
 ### Synthesis Prompt Template
 
@@ -362,57 +363,90 @@ As Chairman, synthesize the final answer based on the deliberation results.
 4. Address disagreements with resolution
 5. Present a well-structured final answer
 
-## Output
-Provide synthesis rationale and final answer.
+## Output Format
+
+Provide TWO sections:
+
+### Final Answer
+[The synthesized best answer - focus on content, not process]
+
+### Why This Answer
+[Natural language explanation for users:
+- What made this the best synthesis
+- Which perspectives were combined and why
+- How disagreements were resolved
+- NO scores, weights, or technical jargon]
+
+Technical details (scores, weights, rankings) go in a collapsible section.
 ```
 
 ---
 
 ## Output Format
 
+### Default Output (User-Friendly)
+
 ```markdown
 ## Council Deliberation Results
-
-### Execution Summary
-- **Participants**: [count] LLMs
-- **Evaluation**: Cross-Evaluation (each evaluates others only)
-- **Rubric Used**: [selected_rubric from Stage 0.5]
-- **Responses collected**: [count]
-
-### Smart Selection (Stage 0.5)
-- **Selected Rubric**: [rubric_id]
-- **Confidence**: [0.0-1.0]
-- **Weight Adjustments**: [summary of key adjustments]
-
-### Cross-Evaluation Scores
-
-| Response | Core Score | Overall Score | Scores from Others |
-|----------|------------|---------------|-------------------|
-| A | [core] | [overall] | [list scores] |
-| B | [core] | [overall] | [list scores] |
-| C | [core] | [overall] | [list scores] |
-
-> **Core Score**: Fixed Core6 weights (cross-task comparable)
-> **Overall Score**: Dynamic weights (task-optimized, used for ranking)
-
-### Ranking (by Overall Score)
-| Rank | Response | Overall | Core |
-|------|----------|---------|------|
-| 1 | [label] | [score] | [score] |
-| 2 | [label] | [score] | [score] |
-| ... | ... | ... | ... |
-
-### Key Disagreements (if any)
-[List disagreements and resolution]
-
-### Synthesis Rationale
-[Why final answer synthesized this way]
 
 ### Final Answer
 [Chairman's synthesized answer based on best responses]
 
+### Why This Answer
+[Natural language explanation: why this is the best answer, what perspectives were combined, how disagreements were resolved]
+
+<details>
+<summary>Technical Details</summary>
+
+**Participants**: [count] LLMs | **Rubric**: [selected_rubric]
+
+| Rank | Response | Score |
+|------|----------|-------|
+| 1 | [label] | [score] |
+| 2 | [label] | [score] |
+| ... | ... | ... |
+
+**Weight Adjustments**: [key adjustments if any]
+
+</details>
+
 ---
-*LLM Council v4.4 | Smart Selection + Cross-Evaluation | Participants: N*
+*LLM Council v4.4 | [count] participants*
+```
+
+### Verbose Output (--verbose)
+
+When detailed analysis is needed, expand all technical information:
+
+```markdown
+## Council Deliberation Results
+
+### Final Answer
+[Answer]
+
+### Why This Answer
+[Natural language explanation]
+
+### Technical Details
+
+#### Stage 0.5: Rubric Selection
+- **Selected**: [rubric_id] (confidence: [0.0-1.0])
+- **Reasoning**: [why this rubric]
+- **Weight Adjustments**: [dimension changes]
+
+#### Cross-Evaluation Scores
+
+| Response | Core Score | Overall Score |
+|----------|------------|---------------|
+| A | [core] | [overall] |
+| B | [core] | [overall] |
+| C | [core] | [overall] |
+
+#### Disagreements & Resolution
+[What participants disagreed on and how it was resolved]
+
+---
+*LLM Council v4.4 | [count] participants*
 ```
 
 ---

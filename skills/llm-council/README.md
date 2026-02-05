@@ -161,33 +161,34 @@ llm-council/
 ```markdown
 ## Council Deliberation Results
 
-### Execution Summary
-- **Participants**: 3 LLMs
-- **Evaluation**: Cross-Evaluation (each evaluates others only)
-- **Rubric Used**: code-review
-
-### Smart Selection (Stage 0.5)
-- **Selected Rubric**: code-review
-- **Confidence**: 0.85
-- **Weight Adjustments**: security +10%, actionability +5%
-
-### Cross-Evaluation Scores
-
-| Response | Core Score | Overall Score | Scores from Others |
-|----------|------------|---------------|-------------------|
-| A | 8.0 | 8.2 | 8.2, 7.8 |
-| B | 7.6 | 7.75 | 7.5, 8.0 |
-| C | 8.3 | 8.4 | 8.5, 8.3 |
-
-### Ranking (by Overall Score)
-| Rank | Response | Overall | Core |
-|------|----------|---------|------|
-| 1 | C | 8.4 | 8.3 |
-| 2 | A | 8.2 | 8.0 |
-| 3 | B | 7.75 | 7.6 |
-
 ### Final Answer
-[Synthesized answer based on best responses]
+Based on our analysis, we recommend using Redis for session caching due to
+its superior performance characteristics and built-in TTL support...
+
+### Why This Answer
+All three evaluators agreed that Redis offers the best balance of performance
+and simplicity for this use case. While one participant suggested Memcached
+for its slightly lower memory footprint, the consensus was that Redis's
+additional features (persistence, pub/sub) provide valuable optionality
+without significant overhead.
+
+<details>
+<summary>Technical Details</summary>
+
+**Participants**: 3 LLMs | **Rubric**: technical-decision
+
+| Rank | Response | Score |
+|------|----------|-------|
+| 1 | C | 8.4 |
+| 2 | A | 8.2 |
+| 3 | B | 7.75 |
+
+**Weight Adjustments**: actionability +10% (user asked for specific recommendation)
+
+</details>
+
+---
+*LLM Council v4.4 | 3 participants*
 ```
 
 ## Security
