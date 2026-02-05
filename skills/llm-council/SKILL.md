@@ -1,6 +1,6 @@
 ---
 name: llm-council
-description: Coordinate multiple LLMs for deliberation. Trigger words: "council", "deliberate", "multi-model". Use for architecture decisions, trade-off analysis, or questions needing diverse AI perspectives.
+description: "Coordinate multiple LLMs for deliberation. Trigger words: council, deliberate, multi-model. Use for architecture decisions, trade-off analysis, or questions needing diverse AI perspectives."
 license: MIT
 metadata:
   author: llm-council
