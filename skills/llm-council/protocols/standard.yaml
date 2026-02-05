@@ -1,379 +1,226 @@
-# LLM Council - Standard Protocol v3.1
-# Universal multi-platform deliberation with graceful degradation
+# LLM Council - Standard Protocol v4.0
+# Multi-LLM deliberation with cross-evaluation
 
-version: "3.1"
+version: "4.0"
 metadata:
   name: standard-council
   description: |
-    Standard 3-stage deliberation protocol with multi-agent support.
-    Includes blind evaluation and cross-platform compatibility.
+    Multi-LLM deliberation protocol with mandatory cross-evaluation.
+    Requires external LLM access - do not use without it.
 
 # ============================================================
-# STAGE 1: COLLECTION MODES
+# PREREQUISITES
 # ============================================================
 
-collection_modes:
+prerequisites:
+  external_llm_required: true
+  min_participants: 2  # Host + at least 1 external
+  description: |
+    This protocol REQUIRES access to external LLMs via MCP or API.
+    If no external LLM is available, do NOT use this skill.
+
+# ============================================================
+# EXECUTION MODES (Stage 1 only)
+# ============================================================
+
+execution_modes:
   mode_a:
     name: "Multi-Agent"
     description: |
-      Maximum isolation via parallel sub-agents.
-      Host answers directly, spawns N-1 agents for external LLMs.
+      Spawn parallel sub-agents for external LLM calls.
+      Host answers directly, agents call external LLMs.
     requirements:
       - sub_agent_support
-      - multi_llm_access
+      - external_llm_access
     execution: parallel_agents
-    agent_count_formula: "external_llm_count"  # Host doesn't need agent
+    agent_count: "external_llm_count"
+    recommended: true
 
   mode_b:
     name: "Parallel Tools"
     description: |
       Parallel tool calls in single context.
-      Host answers first, then calls all LLM tools in one message.
+      Use when sub-agents not available but MCP tools are.
     requirements:
-      - multi_llm_access
+      - external_llm_access
     execution: parallel_tools
-    agent_count_formula: "0"  # No agents, just tool calls
-
-  mode_c:
-    name: "Multi-Persona"
-    description: |
-      Single LLM simulating multiple expert perspectives.
-      No external LLM calls needed.
-    requirements: []
-    execution: persona_simulation
-    agent_count_formula: "0"
-
-  mode_d:
-    name: "User-Assisted"
-    description: |
-      User manually collects responses from other LLMs.
-      Maximum diversity, manual effort required.
-    requirements:
-      - user_interaction
-    execution: user_collection
-    agent_count_formula: "0"
-
-# ============================================================
-# STAGE 2: EVALUATION STRATEGIES
-# ============================================================
-
-evaluation_strategies:
-  single_evaluator:
-    name: "Single Evaluator"
-    description: |
-      Host evaluates all anonymized responses.
-      Fast and cost-effective, but potential self-bias.
     agent_count: 0
-    evaluators_per_response: 1
-    self_evaluation: true  # (anonymized)
-    cost_multiplier: 1
-    rigor_level: 2
-
-  multi_evaluator:
-    name: "Multi-Evaluator"
-    description: |
-      Each LLM (Host + external) evaluates ALL responses.
-      Multiple perspectives reduce individual bias.
-    agent_count_formula: "external_llm_count"
-    evaluators_per_response: "participant_count"
-    self_evaluation: true  # (anonymized)
-    cost_multiplier: "participant_count"
-    rigor_level: 3
-    recommended: true
-
-  cross_evaluation:
-    name: "Cross-Evaluation"
-    description: |
-      Each LLM evaluates only OTHER LLMs' responses.
-      Strictest mode - completely eliminates self-evaluation.
-    agent_count_formula: "external_llm_count"
-    evaluators_per_response: "participant_count - 1"
-    self_evaluation: false
-    cost_multiplier: "participant_count"
-    rigor_level: 4
 
 # ============================================================
-# ROLE DEFINITIONS
+# CROSS-EVALUATION (Stage 2 - Mandatory)
+# ============================================================
+
+cross_evaluation:
+  description: |
+    Each LLM evaluates ONLY other LLMs' responses.
+    No self-evaluation allowed.
+
+  self_evaluation: false
+  scores_per_response: "participant_count - 1"
+  agent_count: "external_llm_count"
+
+  anonymization:
+    shuffle_order: true
+    relabel_responses: true
+    strip_metadata: true
+    record_mapping: true
+    reveal_timing: after_all_scores
+
+# ============================================================
+# ROLES
 # ============================================================
 
 roles:
   participant:
     description: Provides independent response to the question
     min_count: 2
-    max_count: 5
     capabilities:
       - text_generation
 
   evaluator:
-    description: Evaluates response quality using rubric
+    description: Evaluates OTHER participants' responses only
+    assignment: all_participants
+    evaluates: others_only  # Never evaluates own response
     capabilities:
       - text_generation
       - structured_output
-    # Assignment depends on strategy:
-    # - single_evaluator: host only
-    # - multi_evaluator: all participants
-    # - cross_evaluation: all participants (excluding own response)
 
   chairman:
-    description: Synthesizes final answer from evaluated responses
+    description: Synthesizes final answer from cross-evaluation results
     count: 1
-    assignment: host_agent
+    assignment: host
     capabilities:
       - text_generation
       - context_synthesis
 
 # ============================================================
-# BLIND EVALUATION CONFIGURATION
-# ============================================================
-
-blind_evaluation:
-  enabled: true
-  description: |
-    All evaluation strategies use blind evaluation.
-    The key is ANONYMIZATION, not physical isolation.
-
-  anonymization:
-    shuffle_order: true           # Randomize response order
-    relabel_responses: true       # Label as A, B, C...
-    strip_metadata: true          # Remove source identifiers
-    record_mapping: true          # Keep mapping for reveal
-
-  reveal_timing: after_all_scores  # Reveal sources after evaluation complete
-
-# ============================================================
-# FLOW DEFINITION
+# FLOW
 # ============================================================
 
 flow:
   stages:
-    - id: detect
-      name: "Step 0: Capability Detection"
-      type: setup
+    - id: verify
+      name: "Step 0: Verify External LLM Access"
+      type: prerequisite
       config:
-        check_capabilities:
-          - multi_llm_access
-          - sub_agent_support
-          - parallel_tool_calls
-        select_mode: auto  # or ask_user
-        select_strategy: auto  # or ask_user
+        check: external_llm_available
+        on_fail: abort_with_message
+        message: "No external LLM available. Do not use this skill."
 
     - id: collect
       name: "Stage 1: Collect Independent Responses"
       type: collect
       config:
-        # Mode selection priority
         mode_priority:
-          - mode_a  # Best: Multi-Agent
-          - mode_b  # Good: Parallel Tools
-          - mode_d  # Manual: User-Assisted
-          - mode_c  # Fallback: Multi-Persona
-
-        timeout: 120  # seconds
-        prompt_template: stage1_collect
-
-        # Agent configuration
-        agent_config:
-          isolation: full
-          context: question_only
-          max_concurrent: 10
+          - mode_a
+          - mode_b
+        timeout: 120
+        min_responses: 2
+        on_insufficient: abort
 
     - id: evaluate
-      name: "Stage 2: Blind Peer Evaluation"
-      type: evaluate
-      condition: "stages.collect.response_count > 1"
+      name: "Stage 2: Cross-Evaluation"
+      type: cross_evaluate
       config:
-        # Strategy selection priority
-        strategy_priority:
-          - multi_evaluator   # Best: Multiple perspectives
-          - cross_evaluation  # Strict: No self-eval
-          - single_evaluator  # Fast: Host only
-
-        # Anonymization (always applied)
+        method: cross_evaluation
         anonymize: true
-        shuffle: true
-
-        prompt_template: stage2_evaluate
+        each_evaluator_skips_own: true
         output_format: structured
 
-        # Agent configuration (for multi/cross strategies)
-        agent_config:
-          receives: all_anonymized_responses
-          returns: structured_scores
-
     - id: synthesize
-      name: "Stage 3: Chairman Synthesis"
+      name: "Stage 3: Synthesize Final Answer"
       type: synthesize
       config:
-        strategy: weighted_synthesis
-        include_dissent: true
-        prompt_template: stage3_synthesize
+        strategy: best_response_synthesis
+        include_complementary: true
 
 # ============================================================
-# AGENT COUNT REFERENCE
+# AGENT COUNT FORMULA
 # ============================================================
 
-agent_count_examples:
-  # Example: Claude Code + Gemini + Codex (3 LLMs total)
+agent_counts:
+  formula: |
+    Stage 1 Agents = External LLM count
+    Stage 2 Agents = External LLM count
+    Total Agents = 2 × External LLM count
 
-  scenario_1:
-    description: "3 LLMs, Single Evaluator"
-    stage1_agents: 2  # Gemini agent + Codex agent
-    stage2_agents: 0  # Host evaluates all
-    total_agents: 2
+  examples:
+    two_external:
+      description: "Host + 2 External LLMs"
+      stage1_agents: 2
+      stage2_agents: 2
+      total_agents: 4
 
-  scenario_2:
-    description: "3 LLMs, Multi-Evaluator"
-    stage1_agents: 2  # Gemini agent + Codex agent
-    stage2_agents: 2  # Gemini eval agent + Codex eval agent
-    total_agents: 4
-
-  scenario_3:
-    description: "3 LLMs, Cross-Evaluation"
-    stage1_agents: 2
-    stage2_agents: 2
-    total_agents: 4
-    note: "Same agent count as Multi, but different prompts"
-
-  scenario_4:
-    description: "Mode C (Multi-Persona)"
-    stage1_agents: 0
-    stage2_agents: 0
-    total_agents: 0
-
-# ============================================================
-# DECISION RULES
-# ============================================================
-
-rules:
-  consensus:
-    threshold: 0.7
-    method: score_variance
-    # variance < 2.0 indicates consensus
-
-  tiebreaker:
-    strategy: chairman_decides
-
-  failure:
-    min_responses: 2
-    on_insufficient: proceed_with_available
-
-  timeout:
-    stage_timeout: 120
-    total_timeout: 300
-    on_timeout: use_completed
+    one_external:
+      description: "Host + 1 External LLM"
+      stage1_agents: 1
+      stage2_agents: 1
+      total_agents: 2
 
 # ============================================================
 # SCORE AGGREGATION
 # ============================================================
 
 score_aggregation:
-  single_evaluator:
-    method: weighted_sum
-    formula: "Σ(dimension_score × weight)"
-
-  multi_evaluator:
-    method: mean
-    formula: "Mean(evaluator1_total, evaluator2_total, ...)"
-    alternative: median  # More robust to outliers
-
-  cross_evaluation:
-    method: mean
-    formula: "Mean(all_scores_for_response)"
-    note: "Each response has N-1 scores"
+  method: mean
+  formula: "Mean(scores from all other evaluators)"
+  scores_per_response: "N - 1"
 
 # ============================================================
-# PLATFORM CONFIGURATIONS
-# ============================================================
-
-platforms:
-  claude_code:
-    capabilities:
-      - sub_agent_support
-      - parallel_tool_calls
-      - multi_llm_access
-    recommended_mode: mode_a
-    recommended_strategy: multi_evaluator
-    stage1:
-      tool: Task
-      subagent_type: general-purpose
-      parallel: true
-    stage2:
-      tool: Task
-      subagent_type: general-purpose
-      parallel: true
-
-  codex_cli:
-    capabilities:
-      - sub_agent_support
-      - parallel_tool_calls
-      - multi_llm_access
-    recommended_mode: mode_a
-    recommended_strategy: multi_evaluator
-    stage1:
-      method: agents_sdk
-    stage2:
-      method: agents_sdk
-
-  gemini_cli:
-    capabilities:
-      - parallel_tool_calls  # Limited
-    recommended_mode: mode_b
-    recommended_strategy: single_evaluator
-    stage1:
-      method: sequential_or_agents_run
-    stage2:
-      method: host_only
-
-  generic:
-    capabilities: []
-    recommended_mode: mode_c
-    recommended_strategy: single_evaluator
-
-# ============================================================
-# RUBRIC CONFIGURATION
+# RUBRIC
 # ============================================================
 
 rubric:
   default: general
-  available:
-    - general
-    - factual-qa
-    - technical-decision
-    - code-review
+  dimensions:
+    accuracy:
+      weight: 30
+      description: "Information is correct and reliable"
+    verifiability:
+      weight: 15
+      description: "Claims supported by evidence"
+    completeness:
+      weight: 20
+      description: "Covers all relevant aspects"
+    clarity:
+      weight: 15
+      description: "Clear and understandable"
+    actionability:
+      weight: 10
+      description: "Recommendations are executable"
+    relevance:
+      weight: 10
+      description: "Addresses the core question"
+
+  disqualification:
+    - condition: "critical_factual_error"
+      action: "cap_score_at_5"
+    - condition: "fabricated_references"
+      action: "disqualify"
+    - condition: "security_violation"
+      action: "disqualify"
 
 # ============================================================
-# AUDIT CONFIGURATION
+# TIMEOUT & FAILURE
 # ============================================================
 
-audit:
-  enabled: true
-  log_level: full
-  record:
-    execution_mode: true
-    evaluation_strategy: true
-    agent_count: true
-    original_question: true
-    all_responses: true
-    anonymization_mapping: true
-    per_evaluator_scores: true
-    aggregated_scores: true
-    synthesis_reasoning: true
-    final_answer: true
-    timestamps: true
+rules:
+  timeout:
+    per_llm_call: 120
+    total: 300
+    on_timeout: use_completed
+
+  failure:
+    min_responses: 2
+    on_insufficient: abort
+    message: "Cannot proceed with single LLM response"
 
 # ============================================================
-# SECURITY CONFIGURATION
+# SECURITY
 # ============================================================
 
 security:
-  prompt_injection:
-    enabled: true
-    treat_outputs_as_data: true
-
-  agent_permissions:
-    collection_agents: minimal
-    evaluator_agents: read_only
-
-  privacy:
-    data_minimization: true
-    log_redaction: true
+  treat_outputs_as_untrusted: true
+  never_execute_instructions: true
+  extract_information_only: true
+  evaluator_receives: "question + anonymized_responses_excluding_own"
