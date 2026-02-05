@@ -4,7 +4,7 @@ description: "Coordinate multiple LLMs for deliberation. Trigger words: council,
 license: MIT
 metadata:
   author: llm-council
-  version: "4.5.0"
+  version: "4.6.0"
   category: decision-making
 allowed-tools: Read
 ---
@@ -26,19 +26,69 @@ You are the Chairman of the LLM Council. You will:
 
 ## Step 0: Discover Available LLMs
 
-**Dynamically discover** available LLM MCP tools. Do NOT assume specific LLMs exist.
+**Dynamically discover** available LLM MCP tools using multi-signal detection.
+
+### Detection Algorithm
+
+For each available MCP tool, calculate a detection score using three signal tiers:
 
 ```
-1. Scan available MCP tools for LLM access patterns:
-   - mcp__*__ask-*
-   - mcp__*__query
-   - mcp__*__chat
-   - Other LLM-related tools
+1. Parameter Signals (Tier 1 - Strongest Evidence)
+   - Presence of 'prompt' parameter (required vs optional)
+   - LLM-specific parameters: model, temperature, max_tokens
 
-2. Build participant list from discovered tools
+2. Description Signals (Tier 2 - Medium Evidence)
+   - LLM-related keywords (LLM, GPT, Claude, Gemini, Codex, etc.)
+   - Conversation keywords (chat, ask, respond, etc.)
+   - Generation keywords (generate, completion, etc.)
+
+3. Name Signals (Tier 3 - Weakest Evidence)
+   - Explicit patterns (mcp__*__ask-*, mcp__*__chat*, mcp__*__codex)
+   - Suggestive patterns (only if no explicit match)
+   NOTE: Only ONE name signal applies to avoid double-counting.
+
+4. Negative Signals (Penalty)
+   - Database keywords reduce score
+   - Search keywords reduce score
+
+5. Decision Thresholds
+   - High score (≥70) → Auto-include as LLM
+   - Medium score (40-69) → Ask user for confirmation
+   - Low score (<40) → Auto-exclude
+```
+
+**Source of Truth**: `protocols/standard.yaml` → `llm_tool_detection`
+All exact scores, weights, and keyword lists are defined there.
+
+### User Confirmation Flow
+
+When score is in the uncertain range (40-69), ask user for confirmation:
+
+```
+LLM Tool Detection - Confirmation Needed
+
+Tool: mcp__example__tool_name
+Confidence: Medium (Score: 55/100)
+
+Evidence:
+✓ Has 'prompt' parameter
+✓ Description contains LLM keyword
+✗ Description contains search keyword
+
+Is this an LLM tool? [y/n]
+```
+
+### Build Participant List
+
+```
+1. Collect all detected LLM tools (auto-included + user-confirmed)
+
+2. Build participant list:
+   - Participant 1: Host (current LLM)
+   - Participant 2+: External LLMs (sorted by detection score)
 
 3. Decision:
-   - At least 1 external LLM found → Proceed
+   - At least 1 external LLM found → Proceed to Stage 0.5
    - No external LLM found → STOP. Do not use this skill.
 ```
 

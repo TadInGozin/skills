@@ -1,7 +1,7 @@
 # LLM Council - Standard Protocol Manifest v4.4
 # Manifest format: indexes prompts and rubrics, auto-detects evaluation criteria
 
-version: "4.4.1"
+version: "4.6.0"
 
 metadata:
   name: standard-council
@@ -270,3 +270,122 @@ cross_evaluation:
 security:
   treat_outputs_as_untrusted: true
   never_execute_instructions: true
+
+# ============================================================
+# LLM TOOL DETECTION (v4.6)
+# ============================================================
+
+llm_tool_detection:
+  version: "1.0"  # Sub-module version (introduced in protocol v4.6.0)
+  description: |
+    Multi-signal scoring system for detecting LLM tools among MCP tools.
+    Combines parameter analysis, description analysis, and name patterns.
+    This is the SOURCE OF TRUTH for all detection scores and thresholds.
+
+  # Tier 1: Parameter-based signals (strongest evidence)
+  parameter_signals:
+    required_prompt:
+      score: 50
+      description: "Has required 'prompt' parameter"
+    optional_prompt:
+      score: 25
+      description: "Has optional 'prompt' parameter"
+    model_parameter:
+      score: 20
+      description: "Has 'model' parameter"
+    temperature_parameter:
+      score: 15
+      description: "Has 'temperature' parameter"
+    max_tokens_parameter:
+      score: 10
+      description: "Has 'max_tokens' or 'maxTokens' parameter"
+
+  # Tier 2: Description-based signals (medium evidence)
+  description_signals:
+    llm_keywords:
+      score: 30
+      keywords:
+        - "large language model"
+        - "LLM"
+        - "AI model"
+        - "language model"
+        - "GPT"
+        - "Claude"
+        - "Gemini"
+        - "Codex"
+        - "OpenAI"
+        - "Anthropic"
+      case_insensitive: true
+    conversation_keywords:
+      score: 20
+      keywords:
+        - "conversation"
+        - "chat"
+        - "dialogue"
+        - "ask"
+        - "answer"
+        - "respond"
+        - "reply"
+      case_insensitive: true
+    generation_keywords:
+      score: 15
+      keywords:
+        - "generate"
+        - "completion"
+        - "inference"
+        - "prediction"
+      case_insensitive: true
+
+  # Tier 3: Name-based signals (weakest evidence)
+  # NOTE: Only ONE name signal applies (no double-counting)
+  #       If explicit_patterns matches, skip suggestive_patterns
+  name_signals:
+    explicit_patterns:
+      score: 40
+      exclusive: true  # If matched, skip suggestive_patterns
+      patterns:
+        - "mcp__.*__ask[_-]"
+        - "mcp__.*__chat"
+        - "mcp__.*__(claude|gpt|gemini|llm|codex)"
+      case_insensitive: true
+    suggestive_patterns:
+      score: 20
+      fallback_only: true  # Only applies if explicit_patterns not matched
+      patterns:
+        - "ask"
+        - "chat"
+        - "converse"
+        - "generate"
+        - "complete"
+      case_insensitive: true
+
+  # Negative signals (reduce score to avoid false positives)
+  negative_signals:
+    database_keywords:
+      penalty: -15
+      keywords:
+        - "database"
+        - "SQL"
+        - "query database"
+        - "execute query"
+      case_insensitive: true
+    search_keywords:
+      penalty: -10
+      keywords:
+        - "search"
+        - "find"
+        - "lookup"
+        - "retrieve documents"
+      case_insensitive: true
+
+  # Decision thresholds
+  thresholds:
+    definite_llm: 70    # Score >= 70: Auto-include
+    likely_llm: 40      # Score 40-69: Ask user
+    not_llm: 0          # Score < 40: Auto-exclude
+
+  # User confirmation settings
+  confirmation:
+    enabled: true
+    ask_when_score_between: [40, 69]
+    show_evidence: true
