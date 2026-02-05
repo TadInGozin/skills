@@ -1,37 +1,34 @@
 # LLM Council - Factual Q&A Rubric
-# Optimized for fact-based questions where accuracy and verifiability are critical
+# Override-only format: defines only differences from default
 
 id: factual-qa
-version: "1.0"
-extends: general
+version: "2.0"
+extends: default
 description: |
-  Evaluation rubric optimized for factual question-answering tasks.
-  Emphasizes accuracy and verifiability over actionability.
-  Use for: knowledge questions, fact-checking, reference queries.
+  Evaluation rubric for factual question-answering tasks.
+  Prioritizes accuracy and verifiability; disables actionability.
 
-weight_overrides:
-  accuracy: 0.45        # Increased from 0.30
-  verifiability: 0.25   # Increased from 0.15
-  completeness: 0.15    # Decreased from 0.20
-  clarity: 0.10         # Decreased from 0.15
-  actionability: 0.00   # Not applicable for factual Q&A
-  relevance: 0.05       # Decreased from 0.10
+# Only weights that differ from default (default weights: accuracy=30, verifiability=15,
+# completeness=20, clarity=15, actionability=10, relevance=10)
+dimension_overrides:
+  accuracy: 45          # +15 from default (30)
+  verifiability: 25     # +10 from default (15)
+  completeness: 15      # -5 from default (20)
+  clarity: 10           # -5 from default (15)
+  actionability: 0      # disabled for factual Q&A
+  relevance: 5          # -5 from default (10)
 
-# Additional evaluation focus
-evaluation_notes: |
-  For factual Q&A:
-  - Prioritize factual correctness above all else
-  - Check for verifiable sources or references
-  - Penalize speculation presented as fact
-  - Value precision over comprehensiveness
-
-examples:
-  suitable:
-    - "What is the capital of France?"
-    - "When was Python 3.0 released?"
-    - "What are the ACID properties in databases?"
-    - "How does TCP handshake work?"
-
-  unsuitable:
-    - "Should I use React or Vue?" # Decision question
-    - "Write a poem about spring" # Creative task
+# Keywords for auto-detection
+detection_keywords:
+  - "what is"
+  - "what are"
+  - "when was"
+  - "when did"
+  - "who is"
+  - "who was"
+  - "how does"
+  - "how do"
+  - "define"
+  - "explain"
+  - "fact"
+  - "true or false"
