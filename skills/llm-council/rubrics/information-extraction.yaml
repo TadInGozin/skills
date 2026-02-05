@@ -1,0 +1,42 @@
+# LLM Council - Information Extraction Rubric
+# Override mode: extends default, only defines differences
+
+id: information-extraction
+version: "1.0"
+extends: default
+description: |
+  Evaluation rubric for structured output, JSON conversion, and data extraction.
+  Emphasizes schema compliance and accurate field extraction.
+
+dimension_overrides:
+  accuracy: 30        # Extracted values must be correct (default: 30)
+  verifiability: 20   # Can be checked against source (default: 15)
+  completeness: 15    # All required fields present (default: 20)
+  clarity: 10         # Output is well-formatted (default: 15)
+  actionability: 5    # Output is usable (default: 10)
+  relevance: 5        # Relevant fields extracted (default: 10)
+
+additional_dimensions:
+  schema_compliance:
+    name: Schema Compliance
+    weight: 15
+    description: Strict adherence to required format, fields, and types
+    levels:
+      - score: 1-3
+        description: Missing fields, wrong types, malformed output
+      - score: 4-6
+        description: Mostly correct with minor format issues
+      - score: 7-10
+        description: Perfect schema compliance, valid parseable output
+
+detection_keywords:
+  - extract
+  - parse
+  - "to json"
+  - "to csv"
+  - structured
+  - schema
+  - fields
+  - normalize
+  - "convert to"
+  - table

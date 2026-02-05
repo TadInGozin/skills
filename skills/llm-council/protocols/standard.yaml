@@ -1,7 +1,7 @@
-# LLM Council - Standard Protocol Manifest v4.2
+# LLM Council - Standard Protocol Manifest v4.3
 # Manifest format: indexes prompts and rubrics, auto-detects evaluation criteria
 
-version: "4.2"
+version: "4.3"
 
 metadata:
   name: standard-council
@@ -22,9 +22,21 @@ resources:
   rubrics:
     default: null  # Use SKILL.md embedded default
     domains:
+      # Original 3
       code-review: rubrics/code-review.yaml
       factual-qa: rubrics/factual-qa.yaml
       technical-decision: rubrics/technical-decision.yaml
+      # New 10
+      debugging: rubrics/debugging.yaml
+      summarization: rubrics/summarization.yaml
+      creative-writing: rubrics/creative-writing.yaml
+      brainstorming: rubrics/brainstorming.yaml
+      translation: rubrics/translation.yaml
+      instructional: rubrics/instructional.yaml
+      information-extraction: rubrics/information-extraction.yaml
+      project-planning: rubrics/project-planning.yaml
+      customer-support: rubrics/customer-support.yaml
+      safety-critical: rubrics/safety-critical.yaml
 
 # ============================================================
 # RUBRIC DETECTION
@@ -70,6 +82,110 @@ rubric_detection:
       - "(should|would).*(use|choose|pick|recommend)"
       - "(which|what).*(better|best|prefer)"
       - "(pros|cons|tradeoff|comparison)"
+
+  debugging:
+    priority: high  # Higher priority than code-review for error-related queries
+    keywords:
+      - "fix"
+      - "error"
+      - "exception"
+      - "crash"
+      - "debug"
+      - "not working"
+      - "failed"
+      - "stack trace"
+      - "troubleshoot"
+
+  summarization:
+    keywords:
+      - "summarize"
+      - "summary"
+      - "tl;dr"
+      - "recap"
+      - "key takeaways"
+      - "meeting notes"
+      - "digest"
+
+  creative-writing:
+    keywords:
+      - "story"
+      - "poem"
+      - "fiction"
+      - "narrative"
+      - "roleplay"
+      - "script"
+      - "creative"
+      - "novel"
+
+  brainstorming:
+    keywords:
+      - "brainstorm"
+      - "ideas"
+      - "suggest"
+      - "alternatives"
+      - "generate"
+      - "options"
+      - "what if"
+
+  translation:
+    keywords:
+      - "translate"
+      - "translation"
+      - "english to"
+      - "chinese to"
+      - "localization"
+
+  instructional:
+    keywords:
+      - "how to"
+      - "tutorial"
+      - "guide"
+      - "step by step"
+      - "teach me"
+      - "walk me through"
+
+  information-extraction:
+    keywords:
+      - "extract"
+      - "parse"
+      - "to json"
+      - "to csv"
+      - "structured"
+      - "schema"
+      - "convert to"
+
+  project-planning:
+    keywords:
+      - "plan"
+      - "roadmap"
+      - "milestone"
+      - "timeline"
+      - "schedule"
+      - "phases"
+      - "sprint"
+
+  customer-support:
+    keywords:
+      - "support"
+      - "customer"
+      - "ticket"
+      - "complaint"
+      - "apologize"
+      - "help desk"
+
+  safety-critical:
+    priority: highest  # Always check first for safety-related queries
+    keywords:
+      - "medical"
+      - "medication"
+      - "dosage"
+      - "diagnosis"
+      - "legal"
+      - "law"
+      - "contract"
+      - "tax"
+      - "investment"
+      - "financial advice"
 
 # ============================================================
 # PREREQUISITES

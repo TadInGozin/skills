@@ -1,0 +1,54 @@
+# LLM Council - Creative Writing Rubric
+# Override mode: extends default, only defines differences
+
+id: creative-writing
+version: "1.0"
+extends: default
+description: |
+  Evaluation rubric for stories, poems, scripts, and creative text generation.
+  Emphasizes creativity and emotional engagement over factual accuracy.
+
+dimension_overrides:
+  accuracy: 5         # Internal logic consistency only (default: 30)
+  verifiability: 0    # Fiction needs no verification (default: 15)
+  completeness: 10    # Story completeness (default: 20)
+  clarity: 15         # Writing fluency (default: 15)
+  actionability: 0    # Not applicable (default: 10)
+  relevance: 10       # Adherence to prompt/theme (default: 10)
+
+additional_dimensions:
+  creativity:
+    name: Creativity
+    weight: 40
+    description: Novelty, imagination, and unique perspective
+    levels:
+      - score: 1-3
+        description: Cliché, predictable, lacks originality
+      - score: 4-6
+        description: Some original ideas and interesting twists
+      - score: 7-10
+        description: Highly imaginative with unique world-building
+
+  engagement:
+    name: Engagement
+    weight: 20
+    description: Emotional impact and narrative flow
+    levels:
+      - score: 1-3
+        description: Dull, hard to follow
+      - score: 4-6
+        description: Engaging, maintains interest
+      - score: 7-10
+        description: Captivating, emotionally resonant
+
+detection_keywords:
+  - story
+  - poem
+  - fiction
+  - narrative
+  - roleplay
+  - script
+  - creative
+  - novel
+  - character
+  - plot

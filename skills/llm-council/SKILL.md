@@ -20,7 +20,7 @@ compatibility: |
   Dynamically discovers available LLM tools at runtime.
 metadata:
   author: llm-council
-  version: "4.2.0"
+  version: "4.3.0"
   category: decision-making
 allowed-tools: Read
 ---
@@ -144,10 +144,20 @@ Use when no sub-agent support but MCP tools available.
 Select evaluation rubric based on question type:
 
 1. **Check for explicit request**: If user specifies a rubric type, use it
-2. **Auto-detect from content**: Match question against detection keywords
-   - Code review keywords: "review", "code", "PR", "bug", "refactor" → Use `rubrics/code-review.yaml`
-   - Factual Q&A keywords: "what is", "explain", "define" → Use `rubrics/factual-qa.yaml`
-   - Technical decision keywords: "should we", "compare", "vs" → Use `rubrics/technical-decision.yaml`
+2. **Auto-detect from content**: Match question against detection keywords (priority order)
+   - **Safety-critical** (highest): "medical", "legal", "tax", "investment" → `rubrics/safety-critical.yaml`
+   - **Debugging**: "fix", "error", "crash", "debug" → `rubrics/debugging.yaml`
+   - **Code review**: "review", "code", "PR", "refactor" → `rubrics/code-review.yaml`
+   - **Summarization**: "summarize", "tl;dr", "recap" → `rubrics/summarization.yaml`
+   - **Translation**: "translate", "english to", "chinese to" → `rubrics/translation.yaml`
+   - **Creative writing**: "story", "poem", "fiction", "narrative" → `rubrics/creative-writing.yaml`
+   - **Brainstorming**: "brainstorm", "ideas", "alternatives" → `rubrics/brainstorming.yaml`
+   - **Instructional**: "how to", "tutorial", "step by step" → `rubrics/instructional.yaml`
+   - **Information extraction**: "extract", "to json", "parse" → `rubrics/information-extraction.yaml`
+   - **Project planning**: "roadmap", "milestone", "timeline" → `rubrics/project-planning.yaml`
+   - **Customer support**: "customer", "ticket", "complaint" → `rubrics/customer-support.yaml`
+   - **Factual Q&A**: "what is", "explain", "define" → `rubrics/factual-qa.yaml`
+   - **Technical decision**: "should we", "compare", "vs" → `rubrics/technical-decision.yaml`
 3. **Default**: Use the default rubric below
 
 ### Default Evaluation Rubric
@@ -349,7 +359,7 @@ Provide synthesis rationale and final answer.
 [Chairman's synthesized answer based on best responses]
 
 ---
-*LLM Council v4.2 | Cross-Evaluation | Participants: N*
+*LLM Council v4.3 | Cross-Evaluation | Participants: N*
 ```
 
 ---
@@ -379,10 +389,23 @@ Edit files in `prompts/` directory:
 
 ### Domain-Specific Rubrics
 
-Edit files in `rubrics/` directory:
-- `rubrics/code-review.yaml` - Code review evaluation (adds security dimension)
-- `rubrics/factual-qa.yaml` - Factual Q&A (emphasizes accuracy/verifiability)
-- `rubrics/technical-decision.yaml` - Technical decisions (emphasizes actionability)
+Edit files in `rubrics/` directory (13 domain rubrics available):
+
+| Rubric | Focus | New Dimensions |
+|--------|-------|----------------|
+| `code-review` | Security, actionable fixes | Security |
+| `factual-qa` | Accuracy, verifiability | - |
+| `technical-decision` | Trade-offs, actionability | - |
+| `debugging` | Root cause, solutions | - |
+| `summarization` | Faithfulness, coverage | - |
+| `creative-writing` | Originality, engagement | Creativity, Engagement |
+| `brainstorming` | Idea diversity, novelty | Diversity, Creativity |
+| `translation` | Semantic accuracy, fluency | - |
+| `instructional` | Clarity, executable steps | - |
+| `information-extraction` | Schema compliance | Schema Compliance |
+| `project-planning` | Feasibility, milestones | Feasibility & Risk |
+| `customer-support` | Empathy, next steps | Tone & Empathy |
+| `safety-critical` | Safety, disclaimers | Safety Awareness |
 
 Each domain rubric uses override mode - only defines differences from the default rubric above.
 

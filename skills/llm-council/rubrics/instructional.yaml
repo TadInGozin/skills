@@ -1,0 +1,29 @@
+# LLM Council - Instructional Rubric
+# Override mode: extends default, only defines differences
+
+id: instructional
+version: "1.0"
+extends: default
+description: |
+  Evaluation rubric for tutorials, how-to guides, and step-by-step instructions.
+  Emphasizes clarity and actionable steps that users can follow.
+
+dimension_overrides:
+  actionability: 40   # Steps must be executable (default: 10)
+  clarity: 30         # Must be easy to understand (default: 15)
+  accuracy: 20        # Information must be correct (default: 30)
+  completeness: 10    # Cover prerequisites and edge cases (default: 20)
+  verifiability: 0    # Not primary concern (default: 15)
+  relevance: 0        # Implicit (default: 10)
+
+detection_keywords:
+  - "how to"
+  - tutorial
+  - guide
+  - "step by step"
+  - "teach me"
+  - "walk me through"
+  - instructions
+  - "show me"
+  - learn
+  - beginner

@@ -1,0 +1,29 @@
+# LLM Council - Debugging Rubric
+# Override mode: extends default, only defines differences
+
+id: debugging
+version: "1.0"
+extends: default
+description: |
+  Evaluation rubric for error fixing, log analysis, and troubleshooting tasks.
+  Emphasizes root cause accuracy and actionable solutions.
+
+dimension_overrides:
+  accuracy: 35        # Root cause must be correct (default: 30)
+  actionability: 35   # Solution must be specific and effective (default: 10)
+  clarity: 15         # Clear explanation of the issue (default: 15)
+  verifiability: 10   # Provide reproduction or verification steps (default: 15)
+  completeness: 5     # Focus on core problem, not exhaustive coverage (default: 20)
+
+detection_keywords:
+  - fix
+  - bug
+  - error
+  - exception
+  - crash
+  - debug
+  - "not working"
+  - "failed to"
+  - "stack trace"
+  - troubleshoot
+  - diagnose

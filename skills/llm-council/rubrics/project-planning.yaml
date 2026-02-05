@@ -1,0 +1,43 @@
+# LLM Council - Project Planning Rubric
+# Override mode: extends default, only defines differences
+
+id: project-planning
+version: "1.0"
+extends: default
+description: |
+  Evaluation rubric for project plans, roadmaps, and task breakdown.
+  Emphasizes feasibility, risk awareness, and actionable milestones.
+
+dimension_overrides:
+  accuracy: 20        # Realistic estimates and dependencies (default: 30)
+  verifiability: 10   # Can validate against constraints (default: 15)
+  completeness: 20    # Cover all phases and dependencies (default: 20)
+  clarity: 15         # Clear structure and timeline (default: 15)
+  actionability: 20   # Actionable milestones and tasks (default: 10)
+  relevance: 5        # Addresses project goals (default: 10)
+
+additional_dimensions:
+  feasibility_risk:
+    name: Feasibility & Risk
+    weight: 10
+    description: Assessment of constraints, dependencies, risks, and mitigation
+    levels:
+      - score: 1-3
+        description: Ignores constraints and risks
+      - score: 4-6
+        description: Identifies main risks with basic mitigation
+      - score: 7-10
+        description: Comprehensive risk analysis with contingency plans
+
+detection_keywords:
+  - plan
+  - roadmap
+  - milestone
+  - timeline
+  - schedule
+  - WBS
+  - "break down"
+  - phases
+  - dependencies
+  - rollout
+  - sprint

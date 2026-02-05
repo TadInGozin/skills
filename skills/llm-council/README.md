@@ -2,7 +2,7 @@
 
 > Multi-LLM Deliberation Protocol for AI Agents
 
-[![Version](https://img.shields.io/badge/version-4.2.0-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-4.3.0-blue.svg)]()
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
 
 ## Overview
@@ -89,7 +89,7 @@ Total Agents = 2 × External LLM count
 
 ## Configuration Architecture
 
-LLM Council v4.2 uses an "embedded core + external extension" architecture:
+LLM Council v4.3 uses an "embedded core + external extension" architecture:
 
 **Core (SKILL.md)**
 - Contains complete default evaluation rubric
@@ -111,10 +111,20 @@ LLM Council v4.2 uses an "embedded core + external extension" architecture:
 ```
 llm-council/
 ├── SKILL.md              # Core skill (embedded default config)
-├── rubrics/              # Domain-specific overrides (optional)
+├── rubrics/              # 13 domain-specific rubrics (optional)
 │   ├── code-review.yaml
 │   ├── factual-qa.yaml
-│   └── technical-decision.yaml
+│   ├── technical-decision.yaml
+│   ├── debugging.yaml
+│   ├── summarization.yaml
+│   ├── creative-writing.yaml
+│   ├── brainstorming.yaml
+│   ├── translation.yaml
+│   ├── instructional.yaml
+│   ├── information-extraction.yaml
+│   ├── project-planning.yaml
+│   ├── customer-support.yaml
+│   └── safety-critical.yaml
 ├── protocols/
 │   └── standard.yaml     # Resource manifest
 ├── prompts/              # External prompt templates

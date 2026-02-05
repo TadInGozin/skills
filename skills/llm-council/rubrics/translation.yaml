@@ -1,0 +1,29 @@
+# LLM Council - Translation Rubric
+# Override mode: extends default, only defines differences
+
+id: translation
+version: "1.0"
+extends: default
+description: |
+  Evaluation rubric for multilingual translation and localization tasks.
+  Emphasizes semantic accuracy and natural expression in target language.
+
+dimension_overrides:
+  accuracy: 45        # Semantic fidelity is paramount (default: 30)
+  clarity: 40         # Natural, fluent expression in target language (default: 15)
+  completeness: 10    # No omissions (default: 20)
+  verifiability: 0    # Not applicable (default: 15)
+  actionability: 0    # Not applicable (default: 10)
+  relevance: 5        # Appropriate register and style (default: 10)
+
+detection_keywords:
+  - translate
+  - translation
+  - "english to"
+  - "chinese to"
+  - "to english"
+  - "to chinese"
+  - localization
+  - localize
+  - "in japanese"
+  - "in spanish"

@@ -1,0 +1,30 @@
+# LLM Council - Summarization Rubric
+# Override mode: extends default, only defines differences
+
+id: summarization
+version: "1.0"
+extends: default
+description: |
+  Evaluation rubric for text summarization, meeting notes, and key point extraction.
+  Emphasizes faithfulness to source and comprehensive coverage.
+
+dimension_overrides:
+  accuracy: 40        # Must be faithful to source, no hallucination (default: 30)
+  completeness: 30    # Must cover all key points (default: 20)
+  clarity: 20         # Summary must be concise and clear (default: 15)
+  verifiability: 5    # Can be verified against source (default: 15)
+  actionability: 0    # Not applicable (default: 10)
+  relevance: 5        # Stay on topic (default: 10)
+
+detection_keywords:
+  - summarize
+  - summary
+  - "tl;dr"
+  - digest
+  - brief
+  - overview
+  - extract
+  - recap
+  - "key takeaways"
+  - "meeting notes"
+  - minutes

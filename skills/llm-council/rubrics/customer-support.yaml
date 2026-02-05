@@ -1,0 +1,42 @@
+# LLM Council - Customer Support Rubric
+# Override mode: extends default, only defines differences
+
+id: customer-support
+version: "1.0"
+extends: default
+description: |
+  Evaluation rubric for customer service replies, ticket responses, and user communication.
+  Emphasizes clarity, empathy, and actionable next steps.
+
+dimension_overrides:
+  accuracy: 20        # Information must be correct (default: 30)
+  verifiability: 5    # Can reference policies/docs (default: 15)
+  completeness: 15    # Address all concerns (default: 20)
+  clarity: 20         # Easy to understand (default: 15)
+  actionability: 20   # Clear next steps (default: 10)
+  relevance: 5        # Addresses the issue (default: 10)
+
+additional_dimensions:
+  tone_empathy:
+    name: Tone & Empathy
+    weight: 15
+    description: Friendly, empathetic tone that acknowledges customer feelings
+    levels:
+      - score: 1-3
+        description: Cold, dismissive, or defensive
+      - score: 4-6
+        description: Professional but lacking warmth
+      - score: 7-10
+        description: Warm, empathetic, de-escalating
+
+detection_keywords:
+  - support
+  - customer
+  - ticket
+  - complaint
+  - apologize
+  - "reply to"
+  - user
+  - help desk
+  - service
+  - "de-escalate"
