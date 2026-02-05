@@ -1,12 +1,75 @@
-# LLM Council - Standard Protocol v4.1
-# Multi-LLM deliberation with cross-evaluation
+# LLM Council - Standard Protocol Manifest v4.2
+# Manifest format: indexes prompts and rubrics, auto-detects evaluation criteria
 
-version: "4.1"
+version: "4.2"
+
 metadata:
   name: standard-council
   description: |
     Multi-LLM deliberation protocol with mandatory cross-evaluation.
     Dynamically discovers available LLMs - no predefined roles.
+
+# ============================================================
+# RESOURCES
+# ============================================================
+
+resources:
+  prompts:
+    stage1_collect: prompts/stage1_collect.md
+    stage2_evaluate: prompts/stage2_evaluate.md
+    stage3_synthesize: prompts/stage3_synthesize.md
+
+  rubrics:
+    default: null  # Use SKILL.md embedded default
+    domains:
+      code-review: rubrics/code-review.yaml
+      factual-qa: rubrics/factual-qa.yaml
+      technical-decision: rubrics/technical-decision.yaml
+
+# ============================================================
+# RUBRIC DETECTION
+# ============================================================
+
+rubric_detection:
+  code-review:
+    keywords:
+      - "review"
+      - "code"
+      - "PR"
+      - "pull request"
+      - "refactor"
+      - "bug"
+      - "fix"
+    patterns:
+      - "review (this|my|the) (code|PR|pull request)"
+      - "(what|how).*(wrong|improve|better).*code"
+
+  factual-qa:
+    keywords:
+      - "what is"
+      - "who is"
+      - "when did"
+      - "where is"
+      - "how many"
+      - "explain"
+      - "define"
+    patterns:
+      - "^(what|who|when|where|why|how)\\b"
+      - "(explain|define|describe).*\\?"
+
+  technical-decision:
+    keywords:
+      - "should I"
+      - "which is better"
+      - "recommend"
+      - "choose"
+      - "decision"
+      - "tradeoff"
+      - "compare"
+    patterns:
+      - "(should|would).*(use|choose|pick|recommend)"
+      - "(which|what).*(better|best|prefer)"
+      - "(pros|cons|tradeoff|comparison)"
 
 # ============================================================
 # PREREQUISITES
@@ -21,42 +84,16 @@ prerequisites:
     All participants are equal - no predefined roles.
 
 # ============================================================
-# LLM DISCOVERY
+# EXECUTION
 # ============================================================
 
-discovery:
-  method: dynamic
-  patterns:
-    - "mcp__*__ask-*"
-    - "mcp__*__query"
-    - "mcp__*__chat"
-  on_none_found: abort
-
-# ============================================================
-# EXECUTION MODES
-# ============================================================
-
-execution_modes:
-  mode_a:
-    name: "Multi-Agent"
-    description: |
-      Spawn parallel sub-agents for external LLM calls.
-      Host answers directly, agents call external LLMs.
-    requirements:
-      - sub_agent_support
-      - external_llm_access
-    execution: parallel_agents
-    agent_count: "external_llm_count"
-    recommended: true
-
-  mode_b:
-    name: "Parallel Tools"
-    description: |
-      Parallel tool calls in single context.
-    requirements:
-      - external_llm_access
-    execution: parallel_tools
-    agent_count: 0
+execution:
+  mode_priority:
+    - multi_agent
+    - parallel_tools
+  timeout:
+    per_llm_call: 120
+    total: 300
 
 # ============================================================
 # CROSS-EVALUATION
@@ -65,9 +102,6 @@ execution_modes:
 cross_evaluation:
   mandatory: true
   self_evaluation: false
-  scores_per_response: "N - 1"
-  agent_count: "external_llm_count"
-
   anonymization:
     shuffle_order: true
     relabel_responses: true
@@ -76,118 +110,9 @@ cross_evaluation:
     reveal_timing: after_all_scores
 
 # ============================================================
-# ROLES
-# ============================================================
-
-roles:
-  participant:
-    description: Provides independent response
-    assignment: dynamic
-    min_count: 2
-
-  evaluator:
-    description: Evaluates OTHER participants' responses only
-    assignment: all_participants
-    evaluates: others_only
-
-  chairman:
-    description: Synthesizes final answer
-    count: 1
-    assignment: host
-
-# ============================================================
-# FLOW
-# ============================================================
-
-flow:
-  stages:
-    - id: discover
-      name: "Step 0: Discover Available LLMs"
-      type: discovery
-      config:
-        method: dynamic
-        on_none_found: abort
-
-    - id: collect
-      name: "Stage 1: Collect Independent Responses"
-      type: collect
-      config:
-        mode_priority:
-          - mode_a
-          - mode_b
-        timeout: 120
-        min_responses: 2
-        on_insufficient: abort
-
-    - id: evaluate
-      name: "Stage 2: Cross-Evaluation"
-      type: cross_evaluate
-      config:
-        method: cross_evaluation
-        anonymize: true
-        each_evaluator_skips_own: true
-
-    - id: synthesize
-      name: "Stage 3: Synthesize Final Answer"
-      type: synthesize
-      config:
-        strategy: best_response_synthesis
-
-# ============================================================
-# AGENT COUNT
-# ============================================================
-
-agent_counts:
-  formula: |
-    Stage 1 Agents = External LLM count
-    Stage 2 Agents = External LLM count
-    Total = 2 × External LLM count
-
-# ============================================================
-# RUBRIC
-# ============================================================
-
-rubric:
-  dimensions:
-    accuracy:
-      weight: 30
-    verifiability:
-      weight: 15
-    completeness:
-      weight: 20
-    clarity:
-      weight: 15
-    actionability:
-      weight: 10
-    relevance:
-      weight: 10
-
-  disqualification:
-    - condition: critical_factual_error
-      action: cap_score_at_5
-    - condition: fabricated_references
-      action: disqualify
-    - condition: security_violation
-      action: disqualify
-
-# ============================================================
-# RULES
-# ============================================================
-
-rules:
-  timeout:
-    per_llm_call: 120
-    total: 300
-
-  failure:
-    min_responses: 2
-    on_insufficient: abort
-
-# ============================================================
 # SECURITY
 # ============================================================
 
 security:
   treat_outputs_as_untrusted: true
   never_execute_instructions: true
-  evaluator_receives: "question + anonymized_responses_excluding_own"
