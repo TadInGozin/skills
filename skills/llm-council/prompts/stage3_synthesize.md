@@ -1,11 +1,13 @@
 # Stage 3: Chairman Synthesis
 
-## Prompt Template
+> **Advanced Customization**
+> This file allows you to override the default synthesis prompt.
+> Default templates are embedded in [SKILL.md](../SKILL.md).
+> Only modify this file if you need custom behavior.
 
-Use this template when synthesizing the final answer as Chairman.
+## Template
 
----
-
+```handlebars
 As Chairman, synthesize the final answer based on the deliberation results.
 
 ## Original Question
@@ -17,7 +19,7 @@ As Chairman, synthesize the final answer based on the deliberation results.
 {{#each responses}}
 ### {{provider}}'s Response (Score: {{score}})
 
-{{content}}
+{{{content}}}
 
 ---
 {{/each}}
@@ -30,29 +32,38 @@ As Chairman, synthesize the final answer based on the deliberation results.
 {{rank}}. **{{provider}}** - Weighted Score: {{score}}
 {{/each}}
 
-### Key Disagreements (if any)
+{{#if disagreements}}
+### Key Disagreements
 
 {{#each disagreements}}
 - **{{topic}}**: {{description}}
-  - Resolution: {{resolution}}
+  {{#if resolution}}- Resolution: {{resolution}}{{/if}}
 {{/each}}
+{{/if}}
 
 ## Synthesis Requirements
 
+{{#if custom_requirements}}
+{{#each synthesis_requirements}}
+{{@index}}. {{this}}
+{{/each}}
+{{else}}
 1. **Extract Core Insights**: Prioritize insights from high-scoring responses
 2. **Integrate Complementary Information**: Combine unique contributions from different responses
 3. **Correct Errors**: Fix any identified inaccuracies or issues
 4. **Address Disagreements**: Explain how disagreements were resolved
 5. **Present Clearly**: Provide a well-structured, complete final answer
+{{/if}}
 
 {{#if include_dissent}}
-6. **Include Minority Views**: If significant minority opinions exist, acknowledge them
+- **Include Minority Views**: If significant minority opinions exist, acknowledge them
 {{/if}}
 
 ## Output Structure
 
-Provide the synthesis in this format:
-
+{{#if custom_output_format}}
+{{{output_format}}}
+{{else}}
 ### Synthesis Rationale
 
 [Explain your synthesis approach:
@@ -63,20 +74,24 @@ Provide the synthesis in this format:
 ### Final Answer
 
 [The synthesized answer - should be better than any individual response]
-
----
+{{/if}}
+```
 
 ## Variables
 
-| Variable | Description |
-|----------|-------------|
-| `question` | Original question |
-| `responses` | Array with provider, content, score |
-| `ranking` | Sorted array with rank, provider, score |
-| `disagreements` | Array of identified disagreements |
-| `include_dissent` | Whether to include minority views |
+| Variable | Type | Description | Required |
+|----------|------|-------------|----------|
+| `question` | string | Original question | Yes |
+| `responses` | array | Array with {provider, content, score} | Yes |
+| `ranking` | array | Sorted array with {rank, provider, score} | Yes |
+| `disagreements` | array | Array of {topic, description, resolution} | No |
+| `include_dissent` | boolean | Whether to include minority views | No |
+| `custom_requirements` | boolean | Use custom synthesis requirements | No |
+| `synthesis_requirements` | array | Custom requirements list | No |
+| `custom_output_format` | boolean | Use custom output format | No |
+| `output_format` | string | Custom output format template | No |
 
-## Notes for Execution
+## Execution Notes
 
 1. The final answer should be demonstrably better than individual responses
 2. Do not simply concatenate responses

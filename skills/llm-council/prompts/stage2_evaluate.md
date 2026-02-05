@@ -1,11 +1,13 @@
 # Stage 2: Blind Peer Evaluation
 
-## Prompt Template
+> **Advanced Customization**
+> This file allows you to override the default evaluation prompt.
+> Default templates are embedded in [SKILL.md](../SKILL.md).
+> Only modify this file if you need custom behavior.
 
-Use this template when evaluating responses. **Remember: This is blind evaluation.**
+## Template
 
----
-
+```handlebars
 Please evaluate the following responses to a question.
 
 ## Question
@@ -17,30 +19,46 @@ Please evaluate the following responses to a question.
 {{#each responses}}
 ### Response {{label}}
 
-{{content}}
+{{{content}}}
 
 ---
 {{/each}}
 
 ## Evaluation Rubric
 
+{{#if custom_rubric}}
 Score each response on these dimensions (1-10 scale):
 
 | Dimension | Weight | Description |
 |-----------|--------|-------------|
-| Accuracy | {{rubric.accuracy.weight}} | Correctness and reliability of information |
-| Verifiability | {{rubric.verifiability.weight}} | Evidence and verifiable steps provided |
-| Completeness | {{rubric.completeness.weight}} | Coverage of all relevant aspects |
-| Clarity | {{rubric.clarity.weight}} | Clear and understandable expression |
-| Actionability | {{rubric.actionability.weight}} | Specific, executable recommendations |
-| Relevance | {{rubric.relevance.weight}} | Addresses the core of the question |
+{{#each rubric_dimensions}}
+| {{name}} | {{weight}} | {{description}} |
+{{/each}}
+{{else}}
+Score each response on these dimensions (1-10 scale):
+
+| Dimension | Weight | Description |
+|-----------|--------|-------------|
+| Accuracy | 0.25 | Correctness and reliability of information |
+| Verifiability | 0.15 | Evidence and verifiable steps provided |
+| Completeness | 0.20 | Coverage of all relevant aspects |
+| Clarity | 0.15 | Clear and understandable expression |
+| Actionability | 0.15 | Specific, executable recommendations |
+| Relevance | 0.10 | Addresses the core of the question |
+{{/if}}
 
 ## Disqualification Rules
 
 Check for these issues:
+{{#if custom_disqualification_rules}}
+{{#each disqualification_rules}}
+- **{{name}}**: {{action}}
+{{/each}}
+{{else}}
 - **Critical Factual Error**: Cap score at 5
 - **Fabricated References**: Disqualify
 - **Safety/Privacy Violation**: Disqualify
+{{/if}}
 
 ## Output Format
 
@@ -52,20 +70,14 @@ Provide evaluation in structured format:
     {
       "response_label": "Response A",
       "scores": {
-        "accuracy": <score>,
-        "verifiability": <score>,
-        "completeness": <score>,
-        "clarity": <score>,
-        "actionability": <score>,
-        "relevance": <score>
+        {{#each rubric_dimensions}}
+        "{{key}}": <score>{{#unless @last}},{{/unless}}
+        {{/each}}
       },
       "rationale": {
-        "accuracy": "<brief explanation>",
-        "verifiability": "<brief explanation>",
-        "completeness": "<brief explanation>",
-        "clarity": "<brief explanation>",
-        "actionability": "<brief explanation>",
-        "relevance": "<brief explanation>"
+        {{#each rubric_dimensions}}
+        "{{key}}": "<brief explanation>"{{#unless @last}},{{/unless}}
+        {{/each}}
       },
       "disqualified": false,
       "disqualification_reason": null
@@ -84,18 +96,20 @@ Provide evaluation in structured format:
   ]
 }
 ```
-
----
+```
 
 ## Variables
 
-| Variable | Description |
-|----------|-------------|
-| `question` | The original question |
-| `responses` | Array of {label, content} |
-| `rubric` | Dimension weights |
+| Variable | Type | Description | Required |
+|----------|------|-------------|----------|
+| `question` | string | The original question | Yes |
+| `responses` | array | Array of {label, content} | Yes |
+| `custom_rubric` | boolean | Use custom rubric dimensions | No |
+| `rubric_dimensions` | array | Custom dimensions with {key, name, weight, description} | No |
+| `custom_disqualification_rules` | boolean | Use custom disqualification rules | No |
+| `disqualification_rules` | array | Custom rules with {name, action} | No |
 
-## Notes for Execution
+## Execution Notes
 
 1. **Blind Evaluation**: Do not try to identify which response is yours
 2. Be objective and fair to all responses
