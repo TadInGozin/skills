@@ -1,0 +1,233 @@
+{
+  "brainstorming": {
+    "keywords": [
+      "brainstorm",
+      "ideas",
+      "suggest",
+      "alternatives",
+      "generate",
+      "options",
+      "possibilities",
+      "what if",
+      "ideation",
+      "solutions"
+    ],
+    "description": "Innovative, out-of-the-box thinking",
+    "extends": "default",
+    "file": "brainstorming.yaml"
+  },
+  "code-review": {
+    "keywords": [
+      "code review",
+      "PR review",
+      "pull request",
+      "code audit",
+      "security review",
+      "bug fix",
+      "refactor",
+      "code quality",
+      "vulnerability",
+      "authentication",
+      "authorization"
+    ],
+    "description": "Suggested changes would break existing functionality",
+    "extends": "default",
+    "file": "code-review.yaml"
+  },
+  "creative-writing": {
+    "keywords": [
+      "story",
+      "poem",
+      "fiction",
+      "narrative",
+      "roleplay",
+      "script",
+      "creative",
+      "novel",
+      "character",
+      "plot"
+    ],
+    "description": "Captivating, emotionally resonant",
+    "extends": "default",
+    "file": "creative-writing.yaml"
+  },
+  "customer-support": {
+    "keywords": [
+      "support",
+      "customer",
+      "ticket",
+      "complaint",
+      "apologize",
+      "reply to",
+      "user",
+      "help desk",
+      "service",
+      "de-escalate"
+    ],
+    "description": "Warm, empathetic, de-escalating",
+    "extends": "default",
+    "file": "customer-support.yaml"
+  },
+  "debugging": {
+    "keywords": [
+      "fix",
+      "bug",
+      "error",
+      "exception",
+      "crash",
+      "debug",
+      "not working",
+      "failed to",
+      "stack trace",
+      "troubleshoot",
+      "diagnose"
+    ],
+    "description": "|",
+    "extends": "default",
+    "file": "debugging.yaml"
+  },
+  "factual-qa": {
+    "keywords": [
+      "what is",
+      "what are",
+      "when was",
+      "when did",
+      "who is",
+      "who was",
+      "how does",
+      "how do",
+      "define",
+      "explain",
+      "fact",
+      "true or false"
+    ],
+    "description": "|",
+    "extends": "default",
+    "file": "factual-qa.yaml"
+  },
+  "information-extraction": {
+    "keywords": [
+      "extract",
+      "parse",
+      "to json",
+      "to csv",
+      "structured",
+      "schema",
+      "fields",
+      "normalize",
+      "convert to",
+      "table"
+    ],
+    "description": "Perfect schema compliance, valid parseable output",
+    "extends": "default",
+    "file": "information-extraction.yaml"
+  },
+  "instructional": {
+    "keywords": [
+      "how to",
+      "tutorial",
+      "guide",
+      "step by step",
+      "teach me",
+      "walk me through",
+      "instructions",
+      "show me",
+      "learn",
+      "beginner"
+    ],
+    "description": "|",
+    "extends": "default",
+    "file": "instructional.yaml"
+  },
+  "project-planning": {
+    "keywords": [
+      "plan",
+      "roadmap",
+      "milestone",
+      "timeline",
+      "schedule",
+      "WBS",
+      "break down",
+      "phases",
+      "dependencies",
+      "rollout",
+      "sprint"
+    ],
+    "description": "Comprehensive risk analysis with contingency plans",
+    "extends": "default",
+    "file": "project-planning.yaml"
+  },
+  "safety-critical": {
+    "keywords": [
+      "medical",
+      "medication",
+      "dosage",
+      "diagnosis",
+      "legal",
+      "law",
+      "contract",
+      "tax",
+      "investment",
+      "financial advice",
+      "dangerous",
+      "safety"
+    ],
+    "description": "Fails to recommend professional consultation for serious matters",
+    "extends": "default",
+    "file": "safety-critical.yaml"
+  },
+  "summarization": {
+    "keywords": [
+      "summarize",
+      "summary",
+      "tl;dr",
+      "digest",
+      "brief",
+      "overview",
+      "extract",
+      "recap",
+      "key takeaways",
+      "meeting notes",
+      "minutes"
+    ],
+    "description": "|",
+    "extends": "default",
+    "file": "summarization.yaml"
+  },
+  "technical-decision": {
+    "keywords": [
+      "architecture",
+      "design decision",
+      "trade-off",
+      "should we use",
+      "which database",
+      "microservices",
+      "monolith",
+      "technology selection",
+      "caching strategy",
+      "API design",
+      "scalability",
+      "performance trade-off"
+    ],
+    "description": "Evaluation rubric for technical architecture and design decisions.",
+    "extends": "default",
+    "file": "technical-decision.yaml"
+  },
+  "translation": {
+    "keywords": [
+      "translate",
+      "translation",
+      "english to",
+      "chinese to",
+      "to english",
+      "to chinese",
+      "localization",
+      "localize",
+      "in japanese",
+      "in spanish"
+    ],
+    "description": "|",
+    "extends": "default",
+    "file": "translation.yaml"
+  }
+}

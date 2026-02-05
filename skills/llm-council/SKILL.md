@@ -4,7 +4,7 @@ description: "Coordinate multiple LLMs for deliberation. Trigger words: council,
 license: MIT
 metadata:
   author: llm-council
-  version: "4.4.1"
+  version: "4.5.0"
   category: decision-making
 allowed-tools: Read
 ---
@@ -47,6 +47,7 @@ You are the Chairman of the LLM Council. You will:
 ## Stage 0.5: Smart Rubric Selection & Weight Adjustment
 
 > **New in v4.4**: Host LLM intelligently selects rubric and adjusts weights based on question intent.
+> **Optimized in v4.5**: Fast keyword matching via `rubrics_index.json` reduces token usage by ~85%.
 
 ### Purpose
 
@@ -58,12 +59,26 @@ Replace keyword matching with intelligent analysis to:
 ### Process
 
 ```
-1. Analyze question intent and content
-2. Select best matching rubric (or default)
-3. Identify emphasis in question (e.g., "ensure security", "step by step")
-4. Adjust weights within constraints
-5. Validate and output final weights
+1. **Fast Match**: Read rubrics_index.json, match question against keywords
+2. If match found: Read only the matched rubric YAML file
+3. If no match: Use default rubric
+4. Analyze question intent for weight adjustments
+5. Adjust weights within constraints
+6. Validate and output final weights
 ```
+
+### Fast Matching (Token-Optimized)
+
+Read `rubrics_index.json` (single file, ~230 lines) instead of all 13 YAML files (~500 lines).
+
+```
+Token comparison:
+- Before: 13 YAML files ≈ 2000 tokens
+- After:  1 JSON index ≈ 350 tokens + 1 YAML ≈ 150 tokens = 500 tokens
+- Savings: ~75% per invocation
+```
+
+**Maintenance**: Run `python3 scripts/build_rubric_index.py` after modifying any `rubrics/*.yaml` file.
 
 ### Weight Constraints
 
