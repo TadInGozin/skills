@@ -1,14 +1,101 @@
-# LLM Council - Standard Protocol
-# Full 3-stage deliberation with blind evaluation
+# LLM Council - Standard Protocol v3.1
+# Universal multi-platform deliberation with graceful degradation
 
-version: "2.0"
+version: "3.1"
 metadata:
   name: standard-council
   description: |
-    Standard 3-stage deliberation protocol for general questions.
-    Includes blind evaluation to mitigate self-assessment bias.
+    Standard 3-stage deliberation protocol with multi-agent support.
+    Includes blind evaluation and cross-platform compatibility.
 
-# Role definitions
+# ============================================================
+# STAGE 1: COLLECTION MODES
+# ============================================================
+
+collection_modes:
+  mode_a:
+    name: "Multi-Agent"
+    description: |
+      Maximum isolation via parallel sub-agents.
+      Host answers directly, spawns N-1 agents for external LLMs.
+    requirements:
+      - sub_agent_support
+      - multi_llm_access
+    execution: parallel_agents
+    agent_count_formula: "external_llm_count"  # Host doesn't need agent
+
+  mode_b:
+    name: "Parallel Tools"
+    description: |
+      Parallel tool calls in single context.
+      Host answers first, then calls all LLM tools in one message.
+    requirements:
+      - multi_llm_access
+    execution: parallel_tools
+    agent_count_formula: "0"  # No agents, just tool calls
+
+  mode_c:
+    name: "Multi-Persona"
+    description: |
+      Single LLM simulating multiple expert perspectives.
+      No external LLM calls needed.
+    requirements: []
+    execution: persona_simulation
+    agent_count_formula: "0"
+
+  mode_d:
+    name: "User-Assisted"
+    description: |
+      User manually collects responses from other LLMs.
+      Maximum diversity, manual effort required.
+    requirements:
+      - user_interaction
+    execution: user_collection
+    agent_count_formula: "0"
+
+# ============================================================
+# STAGE 2: EVALUATION STRATEGIES
+# ============================================================
+
+evaluation_strategies:
+  single_evaluator:
+    name: "Single Evaluator"
+    description: |
+      Host evaluates all anonymized responses.
+      Fast and cost-effective, but potential self-bias.
+    agent_count: 0
+    evaluators_per_response: 1
+    self_evaluation: true  # (anonymized)
+    cost_multiplier: 1
+    rigor_level: 2
+
+  multi_evaluator:
+    name: "Multi-Evaluator"
+    description: |
+      Each LLM (Host + external) evaluates ALL responses.
+      Multiple perspectives reduce individual bias.
+    agent_count_formula: "external_llm_count"
+    evaluators_per_response: "participant_count"
+    self_evaluation: true  # (anonymized)
+    cost_multiplier: "participant_count"
+    rigor_level: 3
+    recommended: true
+
+  cross_evaluation:
+    name: "Cross-Evaluation"
+    description: |
+      Each LLM evaluates only OTHER LLMs' responses.
+      Strictest mode - completely eliminates self-evaluation.
+    agent_count_formula: "external_llm_count"
+    evaluators_per_response: "participant_count - 1"
+    self_evaluation: false
+    cost_multiplier: "participant_count"
+    rigor_level: 4
+
+# ============================================================
+# ROLE DEFINITIONS
+# ============================================================
+
 roles:
   participant:
     description: Provides independent response to the question
@@ -19,10 +106,13 @@ roles:
 
   evaluator:
     description: Evaluates response quality using rubric
-    assignment: all_participants  # All participants also evaluate
     capabilities:
       - text_generation
       - structured_output
+    # Assignment depends on strategy:
+    # - single_evaluator: host only
+    # - multi_evaluator: all participants
+    # - cross_evaluation: all participants (excluding own response)
 
   chairman:
     description: Synthesizes final answer from evaluated responses
@@ -32,55 +122,160 @@ roles:
       - text_generation
       - context_synthesis
 
-# Bias mitigation configuration
-bias_mitigation:
-  mode: blind_evaluation
+# ============================================================
+# PERSONA DEFINITIONS (for Mode C)
+# ============================================================
+
+personas:
+  conservative_engineer:
+    name: "Conservative Engineer"
+    name_cn: "保守派工程师"
+    focus:
+      - stability
+      - proven_solutions
+      - risk_mitigation
+    bias: "Prefer established patterns, caution against novelty"
+
+  innovation_advocate:
+    name: "Innovation Advocate"
+    name_cn: "创新派倡导者"
+    focus:
+      - cutting_edge_approaches
+      - efficiency_gains
+      - future_optimization
+    bias: "Embrace new technologies, optimize for future"
+
+  security_analyst:
+    name: "Security/Risk Analyst"
+    name_cn: "安全/风险分析师"
+    focus:
+      - edge_cases
+      - failure_modes
+      - security_implications
+    bias: "Defensive thinking, worst-case scenarios"
+
+# ============================================================
+# BLIND EVALUATION CONFIGURATION
+# ============================================================
+
+blind_evaluation:
+  enabled: true
   description: |
-    Blind evaluation prevents evaluators from knowing which response
-    is their own, reducing self-assessment bias.
+    All evaluation strategies use blind evaluation.
+    The key is ANONYMIZATION, not physical isolation.
 
-  blind_evaluation:
-    anonymize_labels: true      # Responses labeled A, B, C
-    shuffle_order: true         # Randomize order
-    reveal_after_scoring: true  # Reveal sources after evaluation
+  anonymization:
+    shuffle_order: true           # Randomize response order
+    relabel_responses: true       # Label as A, B, C...
+    strip_metadata: true          # Remove source identifiers
+    record_mapping: true          # Keep mapping for reveal
 
-  cross_evaluation:
-    self_evaluation: false      # Do not evaluate own response
-    aggregate_method: mean
+  reveal_timing: after_all_scores  # Reveal sources after evaluation complete
 
-# Flow definition
+# ============================================================
+# FLOW DEFINITION
+# ============================================================
+
 flow:
   stages:
+    - id: detect
+      name: "Step 0: Capability Detection"
+      type: setup
+      config:
+        check_capabilities:
+          - multi_llm_access
+          - sub_agent_support
+          - parallel_tool_calls
+        select_mode: auto  # or ask_user
+        select_strategy: auto  # or ask_user
+
     - id: collect
       name: "Stage 1: Collect Independent Responses"
       type: collect
-      participants: participant
       config:
-        execution: parallel
+        # Mode selection priority
+        mode_priority:
+          - mode_a  # Best: Multi-Agent
+          - mode_b  # Good: Parallel Tools
+          - mode_d  # Manual: User-Assisted
+          - mode_c  # Fallback: Multi-Persona
+
         timeout: 120  # seconds
         prompt_template: stage1_collect
+
+        # Agent configuration
+        agent_config:
+          isolation: full
+          context: question_only
+          max_concurrent: 10
 
     - id: evaluate
       name: "Stage 2: Blind Peer Evaluation"
       type: evaluate
-      participants: evaluator
       condition: "stages.collect.response_count > 1"
       config:
-        method: blind_review
+        # Strategy selection priority
+        strategy_priority:
+          - multi_evaluator   # Best: Multiple perspectives
+          - cross_evaluation  # Strict: No self-eval
+          - single_evaluator  # Fast: Host only
+
+        # Anonymization (always applied)
         anonymize: true
+        shuffle: true
+
         prompt_template: stage2_evaluate
         output_format: structured
+
+        # Agent configuration (for multi/cross strategies)
+        agent_config:
+          receives: all_anonymized_responses
+          returns: structured_scores
 
     - id: synthesize
       name: "Stage 3: Chairman Synthesis"
       type: synthesize
-      participants: chairman
       config:
         strategy: weighted_synthesis
         include_dissent: true
         prompt_template: stage3_synthesize
 
-# Decision rules
+# ============================================================
+# AGENT COUNT REFERENCE
+# ============================================================
+
+agent_count_examples:
+  # Example: Claude Code + Gemini + Codex (3 LLMs total)
+
+  scenario_1:
+    description: "3 LLMs, Single Evaluator"
+    stage1_agents: 2  # Gemini agent + Codex agent
+    stage2_agents: 0  # Host evaluates all
+    total_agents: 2
+
+  scenario_2:
+    description: "3 LLMs, Multi-Evaluator"
+    stage1_agents: 2  # Gemini agent + Codex agent
+    stage2_agents: 2  # Gemini eval agent + Codex eval agent
+    total_agents: 4
+
+  scenario_3:
+    description: "3 LLMs, Cross-Evaluation"
+    stage1_agents: 2
+    stage2_agents: 2
+    total_agents: 4
+    note: "Same agent count as Multi, but different prompts"
+
+  scenario_4:
+    description: "Mode C (Multi-Persona)"
+    stage1_agents: 0
+    stage2_agents: 0
+    total_agents: 0
+
+# ============================================================
+# DECISION RULES
+# ============================================================
+
 rules:
   consensus:
     threshold: 0.7
@@ -89,42 +284,127 @@ rules:
 
   tiebreaker:
     strategy: chairman_decides
-    # Options: random, first_response, chairman_decides
 
   failure:
     min_responses: 2
     on_insufficient: proceed_with_available
-    # Options: abort, retry, fallback_to_host
 
   timeout:
     stage_timeout: 120
     total_timeout: 300
     on_timeout: use_completed
-    # Options: abort, extend, fallback
 
-# Rubric configuration
+# ============================================================
+# SCORE AGGREGATION
+# ============================================================
+
+score_aggregation:
+  single_evaluator:
+    method: weighted_sum
+    formula: "Σ(dimension_score × weight)"
+
+  multi_evaluator:
+    method: mean
+    formula: "Mean(evaluator1_total, evaluator2_total, ...)"
+    alternative: median  # More robust to outliers
+
+  cross_evaluation:
+    method: mean
+    formula: "Mean(all_scores_for_response)"
+    note: "Each response has N-1 scores"
+
+# ============================================================
+# PLATFORM CONFIGURATIONS
+# ============================================================
+
+platforms:
+  claude_code:
+    capabilities:
+      - sub_agent_support
+      - parallel_tool_calls
+      - multi_llm_access
+    recommended_mode: mode_a
+    recommended_strategy: multi_evaluator
+    stage1:
+      tool: Task
+      subagent_type: general-purpose
+      parallel: true
+    stage2:
+      tool: Task
+      subagent_type: general-purpose
+      parallel: true
+
+  codex_cli:
+    capabilities:
+      - sub_agent_support
+      - parallel_tool_calls
+      - multi_llm_access
+    recommended_mode: mode_a
+    recommended_strategy: multi_evaluator
+    stage1:
+      method: agents_sdk
+    stage2:
+      method: agents_sdk
+
+  gemini_cli:
+    capabilities:
+      - parallel_tool_calls  # Limited
+    recommended_mode: mode_b
+    recommended_strategy: single_evaluator
+    stage1:
+      method: sequential_or_agents_run
+    stage2:
+      method: host_only
+
+  generic:
+    capabilities: []
+    recommended_mode: mode_c
+    recommended_strategy: single_evaluator
+
+# ============================================================
+# RUBRIC CONFIGURATION
+# ============================================================
+
 rubric:
   default: general
-  # Can be overridden with: factual-qa, technical-decision, code-review
+  available:
+    - general
+    - factual-qa
+    - technical-decision
+    - code-review
 
-# Audit configuration
+# ============================================================
+# AUDIT CONFIGURATION
+# ============================================================
+
 audit:
   enabled: true
   log_level: full
   record:
+    execution_mode: true
+    evaluation_strategy: true
+    agent_count: true
     original_question: true
     all_responses: true
-    all_evaluations: true
-    evaluation_rationale: true
+    anonymization_mapping: true
+    per_evaluator_scores: true
+    aggregated_scores: true
     synthesis_reasoning: true
     final_answer: true
     timestamps: true
 
-# Security configuration
+# ============================================================
+# SECURITY CONFIGURATION
+# ============================================================
+
 security:
   prompt_injection:
     enabled: true
     treat_outputs_as_data: true
+
+  agent_permissions:
+    collection_agents: minimal
+    evaluator_agents: read_only
 
   privacy:
     data_minimization: true
