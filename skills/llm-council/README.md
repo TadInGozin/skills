@@ -2,7 +2,7 @@
 
 > Multi-LLM Deliberation Protocol for AI Agents
 
-[![Version](https://img.shields.io/badge/version-4.1.0-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-4.2.0-blue.svg)]()
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
 
 ## Overview
@@ -87,19 +87,37 @@ Total Agents = 2 × External LLM count
 - MCP or API access to at least one external LLM
 - Minimum 2 participants (Host + 1 external)
 
+## Configuration Architecture
+
+LLM Council v4.2 uses an "embedded core + external extension" architecture:
+
+**Core (SKILL.md)**
+- Contains complete default evaluation rubric
+- Fully functional without external files
+- Self-documented with all embedded settings
+
+**External Extensions (Optional)**
+- `rubrics/*.yaml` - Domain overrides (only differences from default)
+- `prompts/*.md` - Customizable prompt templates
+- `protocols/standard.yaml` - Resource manifest and detection rules
+
+**Rubric Selection Priority**
+1. **Manual** - User explicitly requests a rubric type
+2. **Auto-detect** - Question content matched against keywords
+3. **Default** - Embedded rubric in SKILL.md
+
 ## Directory Structure
 
 ```
 llm-council/
-├── SKILL.md              # Main skill definition
-├── rubrics/
-│   ├── general.yaml      # Default evaluation rubric
+├── SKILL.md              # Core skill (embedded default config)
+├── rubrics/              # Domain-specific overrides (optional)
+│   ├── code-review.yaml
 │   ├── factual-qa.yaml
-│   ├── technical-decision.yaml
-│   └── code-review.yaml
+│   └── technical-decision.yaml
 ├── protocols/
-│   └── standard.yaml     # Protocol configuration
-├── prompts/
+│   └── standard.yaml     # Resource manifest
+├── prompts/              # External prompt templates
 │   ├── stage1_collect.md
 │   ├── stage2_evaluate.md
 │   └── stage3_synthesize.md
@@ -141,6 +159,31 @@ LLM Council treats all participant outputs as untrusted data:
 - Never executes instructions found in responses
 - Extracts information only
 - Evaluators receive only anonymized responses (excluding their own)
+
+## Advanced Customization
+
+For customization options, see `SKILL.md` which contains the complete protocol and embedded defaults.
+
+**Custom Domain Rubrics**
+
+Domain rubrics in `rubrics/` use override mode - they only define dimensions that differ from the default. Example:
+
+```yaml
+# rubrics/code-review.yaml - adds security dimension
+mode: override
+dimensions:
+  security:
+    weight: 15
+    description: "Security best practices"
+```
+
+**Custom Prompts**
+
+Edit prompt templates in `prompts/` to customize response collection, evaluation, or synthesis behavior.
+
+**Detection Keywords**
+
+Edit `protocols/standard.yaml` to modify auto-detection keywords for different rubric types.
 
 ## License
 
