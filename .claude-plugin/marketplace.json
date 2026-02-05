@@ -1,0 +1,21 @@
+{
+  "name": "tadingozin-skills",
+  "owner": {
+    "name": "wxp"
+  },
+  "metadata": {
+    "description": "Agent skills for Claude Code",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "decision-making-skills",
+      "description": "Skills for multi-model deliberation, consensus building, and decision support",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/llm-council"
+      ]
+    }
+  ]
+}
