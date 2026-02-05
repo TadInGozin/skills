@@ -123,38 +123,6 @@ roles:
       - context_synthesis
 
 # ============================================================
-# PERSONA DEFINITIONS (for Mode C)
-# ============================================================
-
-personas:
-  conservative_engineer:
-    name: "Conservative Engineer"
-    name_cn: "保守派工程师"
-    focus:
-      - stability
-      - proven_solutions
-      - risk_mitigation
-    bias: "Prefer established patterns, caution against novelty"
-
-  innovation_advocate:
-    name: "Innovation Advocate"
-    name_cn: "创新派倡导者"
-    focus:
-      - cutting_edge_approaches
-      - efficiency_gains
-      - future_optimization
-    bias: "Embrace new technologies, optimize for future"
-
-  security_analyst:
-    name: "Security/Risk Analyst"
-    name_cn: "安全/风险分析师"
-    focus:
-      - edge_cases
-      - failure_modes
-      - security_implications
-    bias: "Defensive thinking, worst-case scenarios"
-
-# ============================================================
 # BLIND EVALUATION CONFIGURATION
 # ============================================================
 
