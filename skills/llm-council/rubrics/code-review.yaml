@@ -1,21 +1,19 @@
 # LLM Council - Code Review Rubric
-# Optimized for code quality assessment with security focus
+# Override-only format extending default rubric
 
 id: code-review
-version: "1.0"
-extends: general
-description: |
-  Evaluation rubric for code review tasks.
-  Adds security dimension and emphasizes correctness.
-  Use for: PR reviews, code audits, refactoring suggestions.
+version: "2.0"
+extends: default
+description: Evaluation rubric for code review tasks with security focus.
 
-weight_overrides:
-  accuracy: 0.25        # Code correctness
-  verifiability: 0.10   # Can issues be reproduced?
-  completeness: 0.15    # Coverage of code aspects
-  clarity: 0.10         # Clear explanation of issues
-  actionability: 0.20   # Concrete fix suggestions
-  relevance: 0.05       # Focus on important issues
+# Only weights that differ from default (default: accuracy:30, verifiability:15, completeness:20, clarity:15, actionability:10, relevance:10)
+dimension_overrides:
+  accuracy: 25        # Code correctness (default: 30)
+  verifiability: 10   # Can issues be reproduced? (default: 15)
+  completeness: 15    # Coverage of code aspects (default: 20)
+  clarity: 10         # Clear explanation of issues (default: 15)
+  actionability: 20   # Concrete fix suggestions (default: 10)
+  relevance: 5        # Focus on important issues (default: 10)
 
 # Code-review specific dimensions
 additional_dimensions:
@@ -23,7 +21,7 @@ additional_dimensions:
     name: Security
     name_zh: 安全性
     description: Identification of security vulnerabilities and risks
-    weight: 0.15
+    weight: 15
     levels:
       - score: 1
         name: Security Blind
@@ -36,7 +34,7 @@ additional_dimensions:
         description: Comprehensive security analysis including edge cases
 
 # Disqualifiers specific to code review
-code_review_disqualifiers:
+additional_disqualifiers:
   - id: introduces_vulnerability
     name: Introduces Vulnerability
     description: Suggested fix introduces a new security vulnerability
@@ -47,21 +45,16 @@ code_review_disqualifiers:
     description: Suggested changes would break existing functionality
     action: score_cap_5
 
-evaluation_notes: |
-  For code review:
-  - Prioritize security and correctness issues
-  - Provide specific, actionable fix suggestions
-  - Consider performance implications
-  - Reference best practices or standards when applicable
-  - Distinguish between critical issues and style preferences
-
-examples:
-  suitable:
-    - "Review this authentication code"
-    - "Is there a bug in this function?"
-    - "How can I improve this algorithm?"
-    - "Check for security issues"
-
-  unsuitable:
-    - "Explain how this library works" # Educational
-    - "What technology should I use?" # Decision question
+# Keywords for auto-detecting code review tasks
+detection_keywords:
+  - code review
+  - PR review
+  - pull request
+  - code audit
+  - security review
+  - bug fix
+  - refactor
+  - code quality
+  - vulnerability
+  - authentication
+  - authorization
