@@ -1,0 +1,37 @@
+# LLM Council - Factual Q&A Rubric
+# Optimized for fact-based questions where accuracy and verifiability are critical
+
+id: factual-qa
+version: "1.0"
+extends: general
+description: |
+  Evaluation rubric optimized for factual question-answering tasks.
+  Emphasizes accuracy and verifiability over actionability.
+  Use for: knowledge questions, fact-checking, reference queries.
+
+weight_overrides:
+  accuracy: 0.45        # Increased from 0.30
+  verifiability: 0.25   # Increased from 0.15
+  completeness: 0.15    # Decreased from 0.20
+  clarity: 0.10         # Decreased from 0.15
+  actionability: 0.00   # Not applicable for factual Q&A
+  relevance: 0.05       # Decreased from 0.10
+
+# Additional evaluation focus
+evaluation_notes: |
+  For factual Q&A:
+  - Prioritize factual correctness above all else
+  - Check for verifiable sources or references
+  - Penalize speculation presented as fact
+  - Value precision over comprehensiveness
+
+examples:
+  suitable:
+    - "What is the capital of France?"
+    - "When was Python 3.0 released?"
+    - "What are the ACID properties in databases?"
+    - "How does TCP handshake work?"
+
+  unsuitable:
+    - "Should I use React or Vue?" # Decision question
+    - "Write a poem about spring" # Creative task

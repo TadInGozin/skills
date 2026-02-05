@@ -1,0 +1,67 @@
+# LLM Council - Code Review Rubric
+# Optimized for code quality assessment with security focus
+
+id: code-review
+version: "1.0"
+extends: general
+description: |
+  Evaluation rubric for code review tasks.
+  Adds security dimension and emphasizes correctness.
+  Use for: PR reviews, code audits, refactoring suggestions.
+
+weight_overrides:
+  accuracy: 0.25        # Code correctness
+  verifiability: 0.10   # Can issues be reproduced?
+  completeness: 0.15    # Coverage of code aspects
+  clarity: 0.10         # Clear explanation of issues
+  actionability: 0.20   # Concrete fix suggestions
+  relevance: 0.05       # Focus on important issues
+
+# Code-review specific dimensions
+additional_dimensions:
+  security:
+    name: Security
+    name_zh: 安全性
+    description: Identification of security vulnerabilities and risks
+    weight: 0.15
+    levels:
+      - score: 1
+        name: Security Blind
+        description: Ignores obvious security issues
+      - score: 5
+        name: Basic Security
+        description: Identifies common vulnerabilities
+      - score: 10
+        name: Security Expert
+        description: Comprehensive security analysis including edge cases
+
+# Disqualifiers specific to code review
+code_review_disqualifiers:
+  - id: introduces_vulnerability
+    name: Introduces Vulnerability
+    description: Suggested fix introduces a new security vulnerability
+    action: disqualify
+
+  - id: breaks_functionality
+    name: Breaks Functionality
+    description: Suggested changes would break existing functionality
+    action: score_cap_5
+
+evaluation_notes: |
+  For code review:
+  - Prioritize security and correctness issues
+  - Provide specific, actionable fix suggestions
+  - Consider performance implications
+  - Reference best practices or standards when applicable
+  - Distinguish between critical issues and style preferences
+
+examples:
+  suitable:
+    - "Review this authentication code"
+    - "Is there a bug in this function?"
+    - "How can I improve this algorithm?"
+    - "Check for security issues"
+
+  unsuitable:
+    - "Explain how this library works" # Educational
+    - "What technology should I use?" # Decision question

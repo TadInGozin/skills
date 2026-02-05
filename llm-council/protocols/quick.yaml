@@ -1,0 +1,77 @@
+# LLM Council - Quick Protocol
+# Simplified 2-stage deliberation for time-sensitive scenarios
+
+version: "2.0"
+metadata:
+  name: quick-council
+  description: |
+    Quick deliberation protocol that skips detailed evaluation.
+    Use when time is critical or question complexity is moderate.
+
+# Role definitions (simplified)
+roles:
+  participant:
+    description: Provides independent response
+    min_count: 2
+    max_count: 3
+    capabilities:
+      - text_generation
+
+  chairman:
+    description: Quick synthesis of responses
+    count: 1
+    assignment: host_agent
+
+# No bias mitigation in quick mode
+bias_mitigation:
+  mode: none
+  description: |
+    Quick mode skips blind evaluation for speed.
+    Use standard protocol for important decisions.
+
+# Flow definition (2 stages)
+flow:
+  stages:
+    - id: collect
+      name: "Stage 1: Quick Collection"
+      type: collect
+      participants: participant
+      config:
+        execution: parallel
+        timeout: 60  # Shorter timeout
+        prompt_template: stage1_collect
+
+    - id: quick_synthesize
+      name: "Stage 2: Quick Synthesis"
+      type: synthesize
+      participants: chairman
+      config:
+        strategy: best_of
+        include_dissent: false
+        prompt_template: stage3_synthesize
+
+# Rules (relaxed)
+rules:
+  failure:
+    min_responses: 2
+    on_insufficient: fallback_to_host
+
+  timeout:
+    stage_timeout: 60
+    total_timeout: 120
+    on_timeout: use_completed
+
+# Rubric (simplified)
+rubric:
+  default: general
+  simplified_dimensions:
+    - accuracy
+    - relevance
+
+# Audit (minimal)
+audit:
+  enabled: true
+  log_level: minimal
+  record:
+    original_question: true
+    final_answer: true

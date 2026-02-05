@@ -1,0 +1,162 @@
+# LLM Council - General Evaluation Rubric v2
+# Includes verifiability dimension and disqualification rules
+
+id: general
+version: "2.0"
+description: |
+  General-purpose evaluation rubric for multi-LLM deliberation.
+  Suitable for most question types. Use domain-specific rubrics
+  for specialized tasks (code review, factual Q&A, etc.)
+
+dimensions:
+  accuracy:
+    name: Accuracy
+    name_zh: 准确性
+    description: Correctness and reliability of information
+    weight: 0.30
+    levels:
+      - score: 1
+        name: Incorrect
+        description: Contains obvious errors or misleading information
+      - score: 3
+        name: Partially Accurate
+        description: Partially correct but has omissions or minor errors
+      - score: 5
+        name: Mostly Accurate
+        description: Main information is correct
+      - score: 7
+        name: Accurate
+        description: Information is accurate with correct details
+      - score: 9
+        name: Precise
+        description: Completely accurate with no errors
+      - score: 10
+        name: Authoritative
+        description: Accurate and provides authoritative sources
+
+  verifiability:
+    name: Verifiability
+    name_zh: 可验证性
+    description: Whether claims are supported by evidence or verifiable steps
+    weight: 0.15
+    levels:
+      - score: 1
+        name: Unverifiable
+        description: Cannot be verified, no evidence provided
+      - score: 3
+        name: Partially Verifiable
+        description: Some claims have supporting evidence
+      - score: 5
+        name: Verifiable
+        description: Main claims have clear evidence
+      - score: 7
+        name: Well-Sourced
+        description: Provides specific sources or reproducible steps
+      - score: 10
+        name: Fully Verifiable
+        description: All claims have authoritative sources or verification steps
+
+  completeness:
+    name: Completeness
+    name_zh: 完整性
+    description: Coverage of all relevant aspects of the question
+    weight: 0.20
+    levels:
+      - score: 1
+        name: Incomplete
+        description: Only covers a small part of the question
+      - score: 5
+        name: Mostly Complete
+        description: Covers main aspects
+      - score: 10
+        name: Comprehensive
+        description: Fully covers all relevant aspects
+
+  clarity:
+    name: Clarity
+    name_zh: 清晰度
+    description: How clear and understandable the expression is
+    weight: 0.15
+    levels:
+      - score: 1
+        name: Confusing
+        description: Difficult to understand
+      - score: 5
+        name: Clear
+        description: Expression is clear and easy to understand
+      - score: 10
+        name: Excellent
+        description: Extremely clear with beautiful structure
+
+  actionability:
+    name: Actionability
+    name_zh: 可操作性
+    description: How executable the recommendations are
+    weight: 0.10
+    levels:
+      - score: 1
+        name: Vague
+        description: Generic advice that cannot be executed
+      - score: 5
+        name: Actionable
+        description: Provides executable recommendations
+      - score: 10
+        name: Ready to Use
+        description: Provides specific steps, immediately executable
+
+  relevance:
+    name: Relevance
+    name_zh: 相关性
+    description: How well the response addresses the question
+    weight: 0.10
+    levels:
+      - score: 1
+        name: Off-topic
+        description: Unrelated to the question
+      - score: 5
+        name: Relevant
+        description: Related to the question
+      - score: 10
+        name: Precisely Targeted
+        description: Precisely addresses the core of the question
+
+# Disqualification rules (veto power)
+disqualifiers:
+  - id: factual_error
+    name: Critical Factual Error
+    name_zh: 关键事实错误
+    description: Contains verifiable critical factual errors
+    action: score_cap_5
+    explanation: |
+      When a response contains a critical factual error that can be verified
+      as incorrect, the total score is capped at 5 regardless of other dimensions.
+
+  - id: fabricated_reference
+    name: Fabricated Reference
+    name_zh: 编造引用
+    description: Fabricates non-existent references, data, or sources
+    action: disqualify
+    explanation: |
+      Fabricating references, citations, or data is a severe violation of
+      trustworthiness. The response is disqualified from ranking.
+
+  - id: safety_violation
+    name: Safety Violation
+    name_zh: 安全违规
+    description: Violates safety, privacy, or compliance requirements
+    action: disqualify
+    explanation: |
+      Responses that contain security vulnerabilities, privacy violations,
+      or non-compliant advice are immediately disqualified.
+
+# Scoring configuration
+scoring:
+  method: weighted_average
+  # final_score = Σ(dimension_score × dimension_weight)
+
+  normalization: 0_to_10
+
+  aggregation:
+    across_evaluators: mean
+    # Options: mean, median, trimmed_mean
+    trim_ratio: 0.1  # For trimmed_mean, remove top/bottom 10%

@@ -1,0 +1,52 @@
+# LLM Council - Technical Decision Rubric
+# Optimized for architecture decisions and technical trade-off analysis
+
+id: technical-decision
+version: "1.0"
+extends: general
+description: |
+  Evaluation rubric for technical architecture and design decisions.
+  Emphasizes actionability and trade-off analysis.
+  Use for: architecture choices, technology selection, design reviews.
+
+weight_overrides:
+  accuracy: 0.30        # Maintain baseline
+  verifiability: 0.10   # Slightly lower, some decisions are context-dependent
+  completeness: 0.15    # Cover relevant trade-offs
+  clarity: 0.15         # Clear reasoning is important
+  actionability: 0.20   # Increased - need concrete recommendations
+  relevance: 0.10       # Address the specific context
+
+# Additional dimensions for technical decisions
+additional_dimensions:
+  trade_off_analysis:
+    name: Trade-off Analysis
+    name_zh: 权衡分析
+    description: Quality of pros/cons analysis and risk assessment
+    weight: included_in_completeness
+    levels:
+      - score: 1
+        description: No trade-off analysis
+      - score: 5
+        description: Basic pros/cons listed
+      - score: 10
+        description: Comprehensive analysis with context-specific recommendations
+
+evaluation_notes: |
+  For technical decisions:
+  - Evaluate quality of trade-off analysis
+  - Check if context constraints are considered
+  - Value concrete, implementable recommendations
+  - Consider long-term implications
+  - Penalize one-sided advocacy without alternatives
+
+examples:
+  suitable:
+    - "Should we use microservices or monolith?"
+    - "Which database: PostgreSQL or MongoDB?"
+    - "Is this API design reasonable?"
+    - "What's the best caching strategy?"
+
+  unsuitable:
+    - "What is REST?" # Factual question
+    - "Explain recursion" # Educational question

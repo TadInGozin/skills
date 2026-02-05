@@ -1,0 +1,131 @@
+# LLM Council - Standard Protocol
+# Full 3-stage deliberation with blind evaluation
+
+version: "2.0"
+metadata:
+  name: standard-council
+  description: |
+    Standard 3-stage deliberation protocol for general questions.
+    Includes blind evaluation to mitigate self-assessment bias.
+
+# Role definitions
+roles:
+  participant:
+    description: Provides independent response to the question
+    min_count: 2
+    max_count: 5
+    capabilities:
+      - text_generation
+
+  evaluator:
+    description: Evaluates response quality using rubric
+    assignment: all_participants  # All participants also evaluate
+    capabilities:
+      - text_generation
+      - structured_output
+
+  chairman:
+    description: Synthesizes final answer from evaluated responses
+    count: 1
+    assignment: host_agent
+    capabilities:
+      - text_generation
+      - context_synthesis
+
+# Bias mitigation configuration
+bias_mitigation:
+  mode: blind_evaluation
+  description: |
+    Blind evaluation prevents evaluators from knowing which response
+    is their own, reducing self-assessment bias.
+
+  blind_evaluation:
+    anonymize_labels: true      # Responses labeled A, B, C
+    shuffle_order: true         # Randomize order
+    reveal_after_scoring: true  # Reveal sources after evaluation
+
+  cross_evaluation:
+    self_evaluation: false      # Do not evaluate own response
+    aggregate_method: mean
+
+# Flow definition
+flow:
+  stages:
+    - id: collect
+      name: "Stage 1: Collect Independent Responses"
+      type: collect
+      participants: participant
+      config:
+        execution: parallel
+        timeout: 120  # seconds
+        prompt_template: stage1_collect
+
+    - id: evaluate
+      name: "Stage 2: Blind Peer Evaluation"
+      type: evaluate
+      participants: evaluator
+      condition: "stages.collect.response_count > 1"
+      config:
+        method: blind_review
+        anonymize: true
+        prompt_template: stage2_evaluate
+        output_format: structured
+
+    - id: synthesize
+      name: "Stage 3: Chairman Synthesis"
+      type: synthesize
+      participants: chairman
+      config:
+        strategy: weighted_synthesis
+        include_dissent: true
+        prompt_template: stage3_synthesize
+
+# Decision rules
+rules:
+  consensus:
+    threshold: 0.7
+    method: score_variance
+    # variance < 2.0 indicates consensus
+
+  tiebreaker:
+    strategy: chairman_decides
+    # Options: random, first_response, chairman_decides
+
+  failure:
+    min_responses: 2
+    on_insufficient: proceed_with_available
+    # Options: abort, retry, fallback_to_host
+
+  timeout:
+    stage_timeout: 120
+    total_timeout: 300
+    on_timeout: use_completed
+    # Options: abort, extend, fallback
+
+# Rubric configuration
+rubric:
+  default: general
+  # Can be overridden with: factual-qa, technical-decision, code-review
+
+# Audit configuration
+audit:
+  enabled: true
+  log_level: full
+  record:
+    original_question: true
+    all_responses: true
+    all_evaluations: true
+    evaluation_rationale: true
+    synthesis_reasoning: true
+    final_answer: true
+    timestamps: true
+
+# Security configuration
+security:
+  prompt_injection:
+    enabled: true
+    treat_outputs_as_data: true
+
+  privacy:
+    data_minimization: true
+    log_redaction: true
