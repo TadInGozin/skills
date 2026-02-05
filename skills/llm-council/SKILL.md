@@ -20,7 +20,7 @@ compatibility: |
   Dynamically discovers available LLM tools at runtime.
 metadata:
   author: llm-council
-  version: "4.3.0"
+  version: "4.4.0"
   category: decision-making
 allowed-tools: Read
 ---
@@ -31,9 +31,10 @@ allowed-tools: Read
 
 You are the Chairman of the LLM Council. You will:
 1. Discover available external LLMs dynamically
-2. Coordinate all LLMs to provide independent responses
-3. Conduct **cross-evaluation** (each LLM evaluates others' responses only)
-4. Synthesize the best answer from evaluation results
+2. **Smart Select** the best evaluation rubric and adjust weights (Stage 0.5)
+3. Coordinate all LLMs to provide independent responses
+4. Conduct **cross-evaluation** (each LLM evaluates others' responses only)
+5. Synthesize the best answer from evaluation results
 
 **Prerequisite**: This skill requires access to at least one external LLM. If unavailable, do NOT proceed.
 
@@ -55,6 +56,59 @@ You are the Chairman of the LLM Council. You will:
 3. Decision:
    - At least 1 external LLM found → Proceed
    - No external LLM found → STOP. Do not use this skill.
+```
+
+---
+
+## Stage 0.5: Smart Rubric Selection & Weight Adjustment
+
+> **New in v4.4**: Host LLM intelligently selects rubric and adjusts weights based on question intent.
+
+### Purpose
+
+Replace keyword matching with intelligent analysis to:
+1. Select the most appropriate rubric from 13 domain options
+2. Dynamically adjust dimension weights based on question specifics
+3. Output both `core_score` (comparable) and `overall_score` (task-optimized)
+
+### Process
+
+```
+1. Analyze question intent and content
+2. Select best matching rubric (or default)
+3. Identify emphasis in question (e.g., "ensure security", "step by step")
+4. Adjust weights within constraints
+5. Validate and output final weights
+```
+
+### Weight Constraints
+
+| Tier | Dimensions | Min | Max | Purpose |
+|------|-----------|-----|-----|---------|
+| **Truth-Anchors** | accuracy | 15% | 50% | Protect factual correctness |
+| | verifiability | 8% | 35% | Ensure claims are verifiable |
+| **Expression** | completeness | 8% | 40% | Coverage flexibility |
+| | clarity | 5% | 35% | Expression quality |
+| | actionability | 5% | 45% | Execution guidance |
+| | relevance | 5% | 25% | Topic adherence |
+
+**Combined Constraint**: `accuracy + verifiability ≥ 30%` (truth anchor protection)
+
+### Output Format
+
+```json
+{
+  "selected_rubric": "code-review",
+  "reasoning": "Question involves API security and performance optimization",
+  "confidence": 0.85,
+  "weight_adjustments": [
+    {"dimension": "security", "original": 15, "adjusted": 25, "reason": "User emphasizes security"}
+  ],
+  "final_weights": {
+    "accuracy": 25, "verifiability": 10, "completeness": 15,
+    "clarity": 10, "actionability": 25, "relevance": 5, "security": 10
+  }
+}
 ```
 
 ---
@@ -139,26 +193,17 @@ Use when no sub-agent support but MCP tools available.
 
 > **Principle**: Each LLM evaluates ONLY other LLMs' responses. No self-evaluation.
 
-### Rubric Selection
+### Rubric & Weights
 
-Select evaluation rubric based on question type:
+> **v4.4**: Rubric selection and weight adjustment now happen in **Stage 0.5**.
+> The evaluation uses the `final_weights` from Stage 0.5 output.
 
-1. **Check for explicit request**: If user specifies a rubric type, use it
-2. **Auto-detect from content**: Match question against detection keywords (priority order)
-   - **Safety-critical** (highest): "medical", "legal", "tax", "investment" → `rubrics/safety-critical.yaml`
-   - **Debugging**: "fix", "error", "crash", "debug" → `rubrics/debugging.yaml`
-   - **Code review**: "review", "code", "PR", "refactor" → `rubrics/code-review.yaml`
-   - **Summarization**: "summarize", "tl;dr", "recap" → `rubrics/summarization.yaml`
-   - **Translation**: "translate", "english to", "chinese to" → `rubrics/translation.yaml`
-   - **Creative writing**: "story", "poem", "fiction", "narrative" → `rubrics/creative-writing.yaml`
-   - **Brainstorming**: "brainstorm", "ideas", "alternatives" → `rubrics/brainstorming.yaml`
-   - **Instructional**: "how to", "tutorial", "step by step" → `rubrics/instructional.yaml`
-   - **Information extraction**: "extract", "to json", "parse" → `rubrics/information-extraction.yaml`
-   - **Project planning**: "roadmap", "milestone", "timeline" → `rubrics/project-planning.yaml`
-   - **Customer support**: "customer", "ticket", "complaint" → `rubrics/customer-support.yaml`
-   - **Factual Q&A**: "what is", "explain", "define" → `rubrics/factual-qa.yaml`
-   - **Technical decision**: "should we", "compare", "vs" → `rubrics/technical-decision.yaml`
-3. **Default**: Use the default rubric below
+Stage 2 receives:
+- `selected_rubric`: The rubric chosen by Stage 0.5
+- `final_weights`: Dynamic weights adjusted for the specific question
+- `core_weights`: Fixed Core6 weights for cross-task comparison
+
+Both `core_score` and `overall_score` are calculated for each response.
 
 ### Default Evaluation Rubric
 
@@ -331,23 +376,31 @@ Provide synthesis rationale and final answer.
 ### Execution Summary
 - **Participants**: [count] LLMs
 - **Evaluation**: Cross-Evaluation (each evaluates others only)
-- **Rubric Used**: [default/code-review/factual-qa/technical-decision]
+- **Rubric Used**: [selected_rubric from Stage 0.5]
 - **Responses collected**: [count]
+
+### Smart Selection (Stage 0.5)
+- **Selected Rubric**: [rubric_id]
+- **Confidence**: [0.0-1.0]
+- **Weight Adjustments**: [summary of key adjustments]
 
 ### Cross-Evaluation Scores
 
-| Response | Scores from Others | Avg Score |
-|----------|-------------------|-----------|
-| A | [list scores] | [avg] |
-| B | [list scores] | [avg] |
-| C | [list scores] | [avg] |
+| Response | Core Score | Overall Score | Scores from Others |
+|----------|------------|---------------|-------------------|
+| A | [core] | [overall] | [list scores] |
+| B | [core] | [overall] | [list scores] |
+| C | [core] | [overall] | [list scores] |
 
-### Ranking
-| Rank | Response | Score |
-|------|----------|-------|
-| 1 | [label] | [score] |
-| 2 | [label] | [score] |
-| ... | ... | ... |
+> **Core Score**: Fixed Core6 weights (cross-task comparable)
+> **Overall Score**: Dynamic weights (task-optimized, used for ranking)
+
+### Ranking (by Overall Score)
+| Rank | Response | Overall | Core |
+|------|----------|---------|------|
+| 1 | [label] | [score] | [score] |
+| 2 | [label] | [score] | [score] |
+| ... | ... | ... | ... |
 
 ### Key Disagreements (if any)
 [List disagreements and resolution]
@@ -359,7 +412,7 @@ Provide synthesis rationale and final answer.
 [Chairman's synthesized answer based on best responses]
 
 ---
-*LLM Council v4.3 | Cross-Evaluation | Participants: N*
+*LLM Council v4.4 | Smart Selection + Cross-Evaluation | Participants: N*
 ```
 
 ---

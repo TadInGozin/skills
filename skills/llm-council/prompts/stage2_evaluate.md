@@ -5,6 +5,11 @@
 > Default templates are embedded in [SKILL.md](../SKILL.md).
 > Only modify this file if you need custom behavior.
 
+## v4.4 Changes
+
+This stage now receives dynamic weights from Stage 0.5 (Smart Rubric Selection).
+Evaluators calculate both `core_score` (fixed weights) and `overall_score` (dynamic weights).
+
 ## Template
 
 ```handlebars
@@ -74,6 +79,8 @@ Provide evaluation in structured format:
         "{{key}}": <score>{{#unless @last}},{{/unless}}
         {{/each}}
       },
+      "core_score": <calculated with fixed Core6 weights>,
+      "overall_score": <calculated with dynamic weights>,
       "rationale": {
         {{#each rubric_dimensions}}
         "{{key}}": "<brief explanation>"{{#unless @last}},{{/unless}}
@@ -83,6 +90,10 @@ Provide evaluation in structured format:
       "disqualification_reason": null
     }
   ],
+  "weights_used": {
+    "core": { "accuracy": 30, "verifiability": 15, "completeness": 20, "clarity": 15, "actionability": 10, "relevance": 10 },
+    "dynamic": {{dynamic_weights}}
+  },
   "disagreements": [
     {
       "topic": "<what the disagreement is about>",
@@ -108,6 +119,8 @@ Provide evaluation in structured format:
 | `rubric_dimensions` | array | Custom dimensions with {key, name, weight, description} | No |
 | `custom_disqualification_rules` | boolean | Use custom disqualification rules | No |
 | `disqualification_rules` | array | Custom rules with {name, action} | No |
+| `dynamic_weights` | object | Dynamic weights from Stage 0.5 (v4.4+) | No |
+| `core_weights` | object | Fixed Core6 weights for comparison (v4.4+) | No |
 
 ## Execution Notes
 

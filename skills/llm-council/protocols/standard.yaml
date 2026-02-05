@@ -1,7 +1,7 @@
-# LLM Council - Standard Protocol Manifest v4.3
+# LLM Council - Standard Protocol Manifest v4.4
 # Manifest format: indexes prompts and rubrics, auto-detects evaluation criteria
 
-version: "4.3"
+version: "4.4"
 
 metadata:
   name: standard-council
@@ -15,6 +15,7 @@ metadata:
 
 resources:
   prompts:
+    stage0.5_select: prompts/stage0.5_select.md  # NEW: Smart rubric selection
     stage1_collect: prompts/stage1_collect.md
     stage2_evaluate: prompts/stage2_evaluate.md
     stage3_synthesize: prompts/stage3_synthesize.md
@@ -39,7 +40,44 @@ resources:
       safety-critical: rubrics/safety-critical.yaml
 
 # ============================================================
-# RUBRIC DETECTION
+# RUBRIC SELECTION (v4.4: Smart Selection + Dynamic Weights)
+# ============================================================
+
+rubric_selection:
+  mode: smart  # smart (Host LLM analyzes) replaces keyword matching
+  prompt_template: prompts/stage0.5_select.md
+
+  # Weight constraints for dynamic adjustment
+  weight_constraints:
+    # Tier 1: Truth-Anchors (strict protection)
+    tier1:
+      accuracy: { min: 15, max: 50 }
+      verifiability: { min: 8, max: 35 }
+
+    # Tier 2: Expression-Attributes (more flexible)
+    tier2:
+      completeness: { min: 8, max: 40 }
+      clarity: { min: 5, max: 35 }
+      actionability: { min: 5, max: 45 }
+      relevance: { min: 5, max: 25 }
+
+    # Combined constraints
+    combined:
+      truth_anchor_sum: { min: 30 }  # accuracy + verifiability >= 30%
+
+    total: 100
+
+  # Dual score output
+  scoring:
+    core_score:
+      description: "Fixed Core6 weights for cross-task comparison"
+      weights: { accuracy: 30, verifiability: 15, completeness: 20, clarity: 15, actionability: 10, relevance: 10 }
+    overall_score:
+      description: "Dynamic weights optimized for specific task"
+      weights: dynamic  # Uses final_weights from Stage 0.5
+
+# ============================================================
+# RUBRIC DETECTION (Legacy - kept for reference)
 # ============================================================
 
 rubric_detection:

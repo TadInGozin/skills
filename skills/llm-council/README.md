@@ -2,7 +2,7 @@
 
 > Multi-LLM Deliberation Protocol for AI Agents
 
-[![Version](https://img.shields.io/badge/version-4.3.0-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-4.4.0-blue.svg)]()
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
 
 ## Overview
@@ -10,18 +10,22 @@
 LLM Council is an Agent Skill that enables multi-LLM deliberation for complex questions. Instead of relying on a single model's response, it coordinates multiple LLMs to:
 
 1. **Discover** available LLMs dynamically
-2. **Collect** independent responses from all participants
-3. **Cross-Evaluate** each LLM evaluates others' responses only (no self-evaluation)
-4. **Synthesize** a final answer based on evaluation results
+2. **Smart Select** the best evaluation rubric and adjust weights (v4.4)
+3. **Collect** independent responses from all participants
+4. **Cross-Evaluate** each LLM evaluates others' responses only (no self-evaluation)
+5. **Synthesize** a final answer based on evaluation results
 
 **Important**: This skill REQUIRES access to external LLMs. If no external LLM is available, do not use this skill.
 
 ## Features
 
 - **Dynamic Discovery**: Automatically detects available LLM tools at runtime
+- **Smart Rubric Selection** (v4.4): Host LLM intelligently selects rubric and adjusts weights
+- **Dynamic Weight Adjustment** (v4.4): Weights optimized for specific question intent
+- **Dual Scoring** (v4.4): Both core_score (comparable) and overall_score (task-optimized)
 - **Cross-Evaluation**: Each LLM evaluates only other LLMs' responses - no self-evaluation
 - **Anonymization**: Responses are shuffled and re-labeled to prevent bias
-- **Customizable Rubrics**: Domain-specific evaluation criteria
+- **Customizable Rubrics**: 13 domain-specific evaluation criteria
 - **Security**: Built-in protection against prompt injection
 
 ## Quick Start
@@ -62,16 +66,19 @@ Each response receives (N-1) scores
 Final Score = Mean(scores from others)
 ```
 
-## Evaluation Dimensions
+## Evaluation Dimensions (Core6)
 
-| Dimension | Weight | Description |
-|-----------|--------|-------------|
-| Accuracy | 30% | Correctness and reliability |
-| Verifiability | 15% | Evidence and sources provided |
-| Completeness | 20% | Coverage of all aspects |
-| Clarity | 15% | Clear expression |
-| Actionability | 10% | Executable recommendations |
-| Relevance | 10% | Addresses the question |
+| Dimension | Default Weight | Range | Description |
+|-----------|---------------|-------|-------------|
+| Accuracy | 30% | 15-50% | Correctness and reliability |
+| Verifiability | 15% | 8-35% | Evidence and sources provided |
+| Completeness | 20% | 8-40% | Coverage of all aspects |
+| Clarity | 15% | 5-35% | Clear expression |
+| Actionability | 10% | 5-45% | Executable recommendations |
+| Relevance | 10% | 5-25% | Addresses the question |
+
+**v4.4 Dynamic Weights**: Weights are adjusted within these ranges based on question intent.
+- **Truth Anchor Constraint**: `accuracy + verifiability ≥ 30%` (always protected)
 
 ## Agent Count
 
@@ -87,9 +94,23 @@ Total Agents = 2 × External LLM count
 - MCP or API access to at least one external LLM
 - Minimum 2 participants (Host + 1 external)
 
+## Smart Rubric Selection (v4.4)
+
+Instead of keyword matching, the Host LLM intelligently analyzes each question to:
+
+1. **Select** the most appropriate rubric from 13 domain options
+2. **Adjust** dimension weights based on question emphasis
+3. **Validate** constraints are met (tiered floors, truth anchor protection)
+4. **Output** both core_score and overall_score for comparison
+
+Example: For a question like "Review this API for security vulnerabilities and performance":
+- Selected rubric: `code-review`
+- Weight adjustments: `security: +10%`, `actionability: +5%`
+- Both scores calculated for cross-task comparison
+
 ## Configuration Architecture
 
-LLM Council v4.3 uses an "embedded core + external extension" architecture:
+LLM Council v4.4 uses an "embedded core + external extension" architecture:
 
 **Core (SKILL.md)**
 - Contains complete default evaluation rubric
@@ -126,8 +147,9 @@ llm-council/
 │   ├── customer-support.yaml
 │   └── safety-critical.yaml
 ├── protocols/
-│   └── standard.yaml     # Resource manifest
+│   └── standard.yaml     # Resource manifest + weight constraints
 ├── prompts/              # External prompt templates
+│   ├── stage0.5_select.md  # Smart rubric selection (v4.4)
 │   ├── stage1_collect.md
 │   ├── stage2_evaluate.md
 │   └── stage3_synthesize.md
@@ -142,21 +164,27 @@ llm-council/
 ### Execution Summary
 - **Participants**: 3 LLMs
 - **Evaluation**: Cross-Evaluation (each evaluates others only)
+- **Rubric Used**: code-review
+
+### Smart Selection (Stage 0.5)
+- **Selected Rubric**: code-review
+- **Confidence**: 0.85
+- **Weight Adjustments**: security +10%, actionability +5%
 
 ### Cross-Evaluation Scores
 
-| Response | Scores from Others | Avg Score |
-|----------|-------------------|-----------|
-| A | 8.2, 7.8 | 8.0 |
-| B | 7.5, 8.0 | 7.75 |
-| C | 8.5, 8.3 | 8.4 |
+| Response | Core Score | Overall Score | Scores from Others |
+|----------|------------|---------------|-------------------|
+| A | 8.0 | 8.2 | 8.2, 7.8 |
+| B | 7.6 | 7.75 | 7.5, 8.0 |
+| C | 8.3 | 8.4 | 8.5, 8.3 |
 
-### Ranking
-| Rank | Response | Score |
-|------|----------|-------|
-| 1 | C | 8.4 |
-| 2 | A | 8.0 |
-| 3 | B | 7.75 |
+### Ranking (by Overall Score)
+| Rank | Response | Overall | Core |
+|------|----------|---------|------|
+| 1 | C | 8.4 | 8.3 |
+| 2 | A | 8.2 | 8.0 |
+| 3 | B | 7.75 | 7.6 |
 
 ### Final Answer
 [Synthesized answer based on best responses]
