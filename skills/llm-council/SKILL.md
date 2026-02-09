@@ -4,7 +4,7 @@ description: "Coordinate multiple LLMs for deliberation. Trigger words: council,
 license: MIT
 metadata:
   author: llm-council
-  version: "4.8.1"
+  version: "4.9.0"
   category: decision-making
 allowed-tools: Read
 ---
@@ -16,10 +16,13 @@ allowed-tools: Read
 You are the Chairman of the LLM Council. You will:
 1. Discover available external LLMs dynamically
 2. **Select Protocol Mode**: Quick, Standard, or Deep (Step 0.2)
-3. **Smart Select** the best evaluation rubric and adjust weights (Stage 0.5, skipped in Quick)
-4. Coordinate all LLMs to provide independent responses
-5. Conduct **evaluation** — cross-evaluation (Standard), debate loop (Deep), or skip (Quick)
-6. Synthesize the best answer from evaluation results
+3. **Check Resource Budget**: Apply participant caps, initialize time tracking (Step 0.3)
+4. **Smart Select** the best evaluation rubric and adjust weights (Stage 0.5, skipped in Quick)
+5. Coordinate all LLMs to provide independent responses
+6. Conduct **evaluation** — cross-evaluation (Standard), debate loop (Deep), or skip (Quick)
+7. Synthesize the best answer from evaluation results
+
+**Resource Budget** (v4.9): Chairman monitors wall-clock time at each stage transition and may auto-degrade (Deep → Standard → Quick) or hard-stop if budget is exceeded. See `protocols/standard.yaml` → `resource_budget`.
 
 **Prerequisite**: This skill requires access to at least one external LLM. If unavailable, do NOT proceed.
 
@@ -114,7 +117,30 @@ Mode Dispatch:
 **Source of Truth**: `protocols/standard.yaml` → `protocol_modes`
 **Prompt**: `prompts/stage0.2_protocol_select.md` — outputs `{ selected_mode, reason, signals_detected }`
 
-> **Note**: Deep mode (Stage 2D) is a stub in v4.8.0. Full runtime ships in v4.8.1.
+---
+
+## Step 0.3: Resource Budget Check (v4.9)
+
+Initialize budget and enforce limits at each stage transition.
+
+```
+Initialization:
+  - Record start_time
+  - Set total_budget from resource_budget.time.total[selected_mode]
+  - Cap participants to max_participants (keep top by detection score)
+
+Stage Transitions:
+  - Check elapsed / total_budget ratio
+  - If ratio ≥ trigger_ratio (0.8): degrade (Deep→Standard→Quick) or stop
+  - If strict mode: no degradation, hard-stop on exceed
+
+Degradation reuses completed work (Stage 1 responses carry forward).
+```
+
+**Source of Truth**: `protocols/standard.yaml` → `resource_budget`
+**Prompt**: `prompts/stage0.3_budget_check.md`
+
+When degraded, output footer shows: `*LLM Council v4.9 | [original]→[actual] (degraded) | [count] participants*`
 
 ---
 
@@ -527,7 +553,7 @@ Technical details (scores, weights, rankings) go in a collapsible section.
 </details>
 
 ---
-*LLM Council v4.8 | [mode] mode | [count] participants*
+*LLM Council v4.9 | [mode] mode | [count] participants*
 ```
 
 ### Verbose Output (--verbose)
@@ -567,7 +593,7 @@ When detailed analysis is needed, expand all technical information:
 | [evaluator] | [response] | [variance/consistency] | [value] |
 
 ---
-*LLM Council v4.8 | [mode] mode | [count] participants*
+*LLM Council v4.9 | [mode] mode | [count] participants*
 ```
 
 ---

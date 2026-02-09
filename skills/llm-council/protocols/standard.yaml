@@ -1,7 +1,7 @@
 # LLM Council - Standard Protocol Manifest v4.4
 # Manifest format: indexes prompts and rubrics, auto-detects evaluation criteria
 
-version: "4.8.1"
+version: "4.9.0"
 
 metadata:
   name: standard-council
@@ -16,6 +16,7 @@ metadata:
 resources:
   prompts:
     stage0.2_protocol_select: prompts/stage0.2_protocol_select.md  # v4.8: Mode selection
+    stage0.3_budget_check: prompts/stage0.3_budget_check.md        # v4.9: Budget check
     stage0.5_select: prompts/stage0.5_select.md
     stage1_collect: prompts/stage1_collect.md
     stage2_evaluate: prompts/stage2_evaluate.md
@@ -250,9 +251,38 @@ execution:
   mode_priority:
     - multi_agent
     - parallel_tools
-  timeout:
+  timeout:  # Legacy: superseded by resource_budget.time (v4.9)
     per_llm_call: 120
     total: 300
+
+# ============================================================
+# RESOURCE BUDGET (v4.9)
+# ============================================================
+
+resource_budget:
+  time:
+    total:
+      quick: 60       # seconds
+      standard: 180
+      deep: 360
+    per_call: 120
+    degradation:
+      enabled: true
+      strategy: mode_fallback    # Deep → Standard → Quick → hard stop
+      trigger_ratio: 0.8         # Degrade when 80% of budget consumed
+    strict: false                # true = no degradation, hard-stop on exceed
+
+  limits:
+    max_participants: 5
+    participant_overflow: top_by_score  # Keep highest detection scores
+    debate:
+      max_rounds: 3
+      min_rounds: 2
+      on_degradation:
+        min_rounds: 1
+        action: early_exit_to_synthesis
+
+  budget_check_prompt: prompts/stage0.3_budget_check.md
 
 # ============================================================
 # PROTOCOL MODES (v4.8)
