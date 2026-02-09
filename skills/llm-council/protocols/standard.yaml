@@ -1,7 +1,7 @@
 # LLM Council - Standard Protocol Manifest v4.4
 # Manifest format: indexes prompts and rubrics, auto-detects evaluation criteria
 
-version: "4.8.0"
+version: "4.8.1"
 
 metadata:
   name: standard-council
@@ -19,6 +19,7 @@ resources:
     stage0.5_select: prompts/stage0.5_select.md
     stage1_collect: prompts/stage1_collect.md
     stage2_evaluate: prompts/stage2_evaluate.md
+    stage2_debate: prompts/stage2_debate.md      # v4.8.1: Deep debate loop
     stage3_synthesize: prompts/stage3_synthesize.md
 
   rubrics:
@@ -280,7 +281,7 @@ protocol_modes:
     auto_hints:
       keywords: [debate, deep, thorough, critical, audit, risk, security, architecture]
       signals: [high_stakes, complex, controversial, safety_critical]
-    runtime: stub  # Full runtime ships in v4.8.1
+    debate_prompt: prompts/stage2_debate.md
 
   # Selection: Chairman auto-selects based on question + auto_hints.
   # User can override with explicit mode request (e.g., "use deep mode").

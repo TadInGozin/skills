@@ -4,7 +4,7 @@ description: "Coordinate multiple LLMs for deliberation. Trigger words: council,
 license: MIT
 metadata:
   author: llm-council
-  version: "4.8.0"
+  version: "4.8.1"
   category: decision-making
 allowed-tools: Read
 ---
@@ -430,12 +430,19 @@ Output: bias_flags[] in technical details (empty if no bias detected)
 
 ---
 
-## Stage 2D: Debate Loop (Deep Mode) — Stub
+## Stage 2D: Debate Loop (Deep Mode)
 
-> **v4.8.0**: Design specification only. Full runtime ships in v4.8.1.
-> **Prompt**: `prompts/stage2_debate.md` (created in v4.8.1)
+> **Prompt**: `prompts/stage2_debate.md` — contains debater + moderator templates and output schemas.
 
-Deep mode replaces cross-evaluation with multi-round structured debate. Participants debate anonymously, a moderator assesses convergence, and the loop exits when consensus is reached or max rounds exhausted.
+Multi-round structured debate replacing cross-evaluation. Anonymized debaters argue positions, a moderator assesses convergence each round.
+
+```
+Loop: min 2, max 3 rounds
+Exit when: (agreement_score ≥ 0.8 AND new_points_ratio ≤ 0.15)
+           OR all debaters "no_change"
+           OR max_rounds reached
+Output → Stage 3 (Deep synthesis): final_stances, convergence_status, debate_log
+```
 
 ---
 

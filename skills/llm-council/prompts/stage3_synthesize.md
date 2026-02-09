@@ -5,7 +5,12 @@
 > Default templates are embedded in [SKILL.md](../SKILL.md).
 > Only modify this file if you need custom behavior.
 
-## Template
+## v4.8.1 Changes
+
+This stage is now **mode-conditional**. The template below is the **Standard** path.
+Additional paths for Deep and Quick modes are appended at the end of this file.
+
+## Template (Standard Mode)
 
 ```handlebars
 As Chairman, synthesize the final answer based on the deliberation results.
@@ -97,3 +102,88 @@ As Chairman, synthesize the final answer based on the deliberation results.
 2. Do not simply concatenate responses
 3. Maintain objectivity even if your response ranked lower
 4. Provide transparency in synthesis reasoning
+
+---
+
+## Template (Deep Mode)
+
+Use when `mode == "deep"`. Receives debate results instead of evaluation scores.
+
+```handlebars
+As Chairman, synthesize the final answer based on the debate results.
+
+## Original Question
+{{question}}
+
+## Debate Summary
+- **Rounds completed**: {{rounds_completed}}
+- **Agreement score**: {{convergence_status.agreement_score}}
+
+## Final Stances
+{{#each final_stances}}
+### Debater {{debater}} (Confidence: {{confidence}}, Stance: {{stance}})
+{{{revised_position}}}
+---
+{{/each}}
+
+{{#if convergence_status.consensus_answer}}
+## Emerging Consensus
+{{convergence_status.consensus_answer}}
+{{/if}}
+
+{{#if convergence_status.remaining_disagreements}}
+## Unresolved Disagreements
+{{#each convergence_status.remaining_disagreements}}
+- {{this}}
+{{/each}}
+{{/if}}
+
+## Synthesis Requirements
+1. Build on the emerging consensus (if any)
+2. Integrate the strongest arguments from all debaters
+3. Address remaining disagreements with reasoned resolution
+4. Present a well-structured final answer that reflects the depth of deliberation
+```
+
+### Deep Mode Variables
+
+| Variable | Type | Description | Required |
+|----------|------|-------------|----------|
+| `question` | string | Original question | Yes |
+| `rounds_completed` | number | Debate rounds completed | Yes |
+| `final_stances` | array | `{debater, stance, confidence, revised_position}` | Yes |
+| `convergence_status` | object | `{agreement_score, consensus_answer, remaining_disagreements}` | Yes |
+| `debate_log` | array | Round-by-round summaries | No |
+
+---
+
+## Template (Quick Mode)
+
+Use when `mode == "quick"`. No scores or evaluation — synthesize directly from responses.
+
+```handlebars
+As Chairman, synthesize the final answer from the collected responses.
+
+## Original Question
+{{question}}
+
+## Participant Responses
+{{#each responses}}
+### {{provider}}
+{{{content}}}
+---
+{{/each}}
+
+## Synthesis Requirements
+1. Identify common ground across responses
+2. Note significant differences in perspective
+3. Present a concise, well-rounded answer
+4. Keep it brief — this is a quick deliberation
+```
+
+### Quick Mode Variables
+
+| Variable | Type | Description | Required |
+|----------|------|-------------|----------|
+| `question` | string | Original question | Yes |
+| `responses` | array | `{provider, content}` (no scores) | Yes |
