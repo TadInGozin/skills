@@ -1,7 +1,7 @@
 # LLM Council - Standard Protocol Manifest v4.4
 # Manifest format: indexes prompts and rubrics, auto-detects evaluation criteria
 
-version: "4.7.0"
+version: "4.8.0"
 
 metadata:
   name: standard-council
@@ -15,7 +15,8 @@ metadata:
 
 resources:
   prompts:
-    stage0.5_select: prompts/stage0.5_select.md  # NEW: Smart rubric selection
+    stage0.2_protocol_select: prompts/stage0.2_protocol_select.md  # v4.8: Mode selection
+    stage0.5_select: prompts/stage0.5_select.md
     stage1_collect: prompts/stage1_collect.md
     stage2_evaluate: prompts/stage2_evaluate.md
     stage3_synthesize: prompts/stage3_synthesize.md
@@ -251,6 +252,39 @@ execution:
   timeout:
     per_llm_call: 120
     total: 300
+
+# ============================================================
+# PROTOCOL MODES (v4.8)
+# ============================================================
+
+protocol_modes:
+  default: standard
+
+  quick:
+    description: "Fast path — skip rubric selection and evaluation"
+    stages: [discover, collect, synthesize]       # skips Stage 0.5 + Stage 2
+    auto_hints:
+      keywords: [quick, simple, brief, opinion, preference, poll, name, list]
+      signals: [short_question, subjective, low_stakes]
+
+  standard:
+    description: "Full pipeline — rubric selection + cross-evaluation"
+    stages: [discover, rubric_select, collect, evaluate, synthesize]
+    auto_hints:
+      keywords: [compare, recommend, explain, analyze, review, decide, evaluate]
+      signals: [technical, multi_faceted, moderate_stakes]
+
+  deep:
+    description: "Debate loop — iterative multi-round deliberation"
+    stages: [discover, rubric_select, collect, debate, synthesize]
+    auto_hints:
+      keywords: [debate, deep, thorough, critical, audit, risk, security, architecture]
+      signals: [high_stakes, complex, controversial, safety_critical]
+    runtime: stub  # Full runtime ships in v4.8.1
+
+  # Selection: Chairman auto-selects based on question + auto_hints.
+  # User can override with explicit mode request (e.g., "use deep mode").
+  selection_prompt: prompts/stage0.2_protocol_select.md
 
 # ============================================================
 # CROSS-EVALUATION

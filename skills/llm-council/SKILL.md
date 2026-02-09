@@ -4,7 +4,7 @@ description: "Coordinate multiple LLMs for deliberation. Trigger words: council,
 license: MIT
 metadata:
   author: llm-council
-  version: "4.7.0"
+  version: "4.8.0"
   category: decision-making
 allowed-tools: Read
 ---
@@ -15,10 +15,11 @@ allowed-tools: Read
 
 You are the Chairman of the LLM Council. You will:
 1. Discover available external LLMs dynamically
-2. **Smart Select** the best evaluation rubric and adjust weights (Stage 0.5)
-3. Coordinate all LLMs to provide independent responses
-4. Conduct **cross-evaluation** (each LLM evaluates others' responses only)
-5. Synthesize the best answer from evaluation results
+2. **Select Protocol Mode**: Quick, Standard, or Deep (Step 0.2)
+3. **Smart Select** the best evaluation rubric and adjust weights (Stage 0.5, skipped in Quick)
+4. Coordinate all LLMs to provide independent responses
+5. Conduct **evaluation** — cross-evaluation (Standard), debate loop (Deep), or skip (Quick)
+6. Synthesize the best answer from evaluation results
 
 **Prerequisite**: This skill requires access to at least one external LLM. If unavailable, do NOT proceed.
 
@@ -88,9 +89,32 @@ Is this an LLM tool? [y/n]
    - Participant 2+: External LLMs (sorted by detection score)
 
 3. Decision:
-   - At least 1 external LLM found → Proceed to Stage 0.5
+   - At least 1 external LLM found → Proceed to Step 0.2
    - No external LLM found → STOP. Do not use this skill.
 ```
+
+---
+
+## Step 0.2: Select Protocol Mode (v4.8)
+
+Choose **Quick**, **Standard**, or **Deep** mode based on question analysis.
+
+```
+Mode Selection:
+1. Check for explicit user override (e.g., "use deep mode") → use requested mode
+2. Analyze question against keyword hints → match to mode
+3. If uncertain → default to Standard
+
+Mode Dispatch:
+  Quick:    Step 0 → Stage 1 → Stage 3           (skip rubric + evaluation)
+  Standard: Step 0 → Stage 0.5 → Stage 1 → Stage 2S → Stage 3  (full pipeline)
+  Deep:     Step 0 → Stage 0.5 → Stage 1 → Stage 2D → Stage 3  (debate loop)
+```
+
+**Source of Truth**: `protocols/standard.yaml` → `protocol_modes`
+**Prompt**: `prompts/stage0.2_protocol_select.md` — outputs `{ selected_mode, reason, signals_detected }`
+
+> **Note**: Deep mode (Stage 2D) is a stub in v4.8.0. Full runtime ships in v4.8.1.
 
 ---
 
@@ -238,8 +262,9 @@ Use when no sub-agent support but MCP tools available.
 
 ---
 
-## Stage 2: Cross-Evaluation
+## Stage 2S: Cross-Evaluation (Standard Mode)
 
+> **Applies to**: Standard mode only. Quick mode skips this stage. Deep mode uses Stage 2D (v4.8.1).
 > **Principle**: Each LLM evaluates ONLY other LLMs' responses. No self-evaluation.
 
 ### Rubric & Weights
@@ -405,6 +430,15 @@ Output: bias_flags[] in technical details (empty if no bias detected)
 
 ---
 
+## Stage 2D: Debate Loop (Deep Mode) — Stub
+
+> **v4.8.0**: Design specification only. Full runtime ships in v4.8.1.
+> **Prompt**: `prompts/stage2_debate.md` (created in v4.8.1)
+
+Deep mode replaces cross-evaluation with multi-round structured debate. Participants debate anonymously, a moderator assesses convergence, and the loop exits when consensus is reached or max rounds exhausted.
+
+---
+
 ## Stage 3: Synthesize Final Answer
 
 As Chairman:
@@ -486,7 +520,7 @@ Technical details (scores, weights, rankings) go in a collapsible section.
 </details>
 
 ---
-*LLM Council v4.7 | [count] participants*
+*LLM Council v4.8 | [mode] mode | [count] participants*
 ```
 
 ### Verbose Output (--verbose)
@@ -526,7 +560,7 @@ When detailed analysis is needed, expand all technical information:
 | [evaluator] | [response] | [variance/consistency] | [value] |
 
 ---
-*LLM Council v4.7 | [count] participants*
+*LLM Council v4.8 | [mode] mode | [count] participants*
 ```
 
 ---
