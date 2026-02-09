@@ -115,7 +115,7 @@ Mode Dispatch:
 ```
 
 **Source of Truth**: `protocols/standard.yaml` → `protocol_modes`
-**Prompt**: `prompts/stage0.2_protocol_select.md` — outputs `{ selected_mode, reason, signals_detected }`
+**Prompt**: `prompts/select_mode.md` — outputs `{ selected_mode, reason, signals_detected }`
 
 ---
 
@@ -138,7 +138,7 @@ Degradation reuses completed work (Stage 1 responses carry forward).
 ```
 
 **Source of Truth**: `protocols/standard.yaml` → `resource_budget`
-**Logic Spec**: `protocols/budget_check.md`
+**Logic Spec**: `specs/budget_check.md`
 
 When degraded, output footer shows: `*LLM Council v4.9 | [original]→[actual] (degraded) | [count] participants*`
 
@@ -355,7 +355,7 @@ Before scoring, evaluators check each response against a 3-point checklist:
 2. **Factual claim check**: Are stated facts and statistics accurate?
 3. **Data plausibility**: Do numbers have realistic precision?
 
-Flagged items are reported in `hallucination_flags`. See `prompts/stage2_evaluate.md` for the full checklist and red-flag patterns.
+Flagged items are reported in `hallucination_flags`. See `prompts/evaluate.md` for the full checklist and red-flag patterns.
 
 ### Disqualification Rules
 
@@ -487,7 +487,7 @@ Output: bias_flags[] in technical details (empty if no bias detected)
 
 ## Stage 2D: Debate Loop (Deep Mode)
 
-> **Prompt**: `prompts/stage2_debate.md` — contains debater + moderator templates and output schemas.
+> **Prompt**: `prompts/debate.md` — contains debater + moderator templates and output schemas.
 
 Multi-round structured debate replacing cross-evaluation. Anonymized debaters argue positions, a moderator assesses convergence each round.
 
@@ -646,9 +646,9 @@ For advanced users who need to customize the deliberation process:
 ### Custom Prompt Templates
 
 Edit files in `prompts/` directory:
-- `prompts/stage1_collect.md` - Response collection prompt
-- `prompts/stage2_evaluate.md` - Evaluation prompt
-- `prompts/stage3_synthesize.md` - Synthesis prompt
+- `prompts/collect.md` - Response collection prompt
+- `prompts/evaluate.md` - Evaluation prompt
+- `prompts/synthesize.md` - Synthesis prompt
 
 ### Domain-Specific Rubrics
 

@@ -132,15 +132,16 @@ llm-council/
 │   ├── customer-support.yaml
 │   └── safety-critical.yaml
 ├── protocols/
-│   ├── standard.yaml           # Source of truth for all config
-│   └── budget_check.md         # Budget check logic spec (v4.9)
+│   └── standard.yaml           # Source of truth for all config
 ├── prompts/
-│   ├── stage0.2_protocol_select.md   # Mode selection (v4.8)
-│   ├── stage0.5_select.md            # Smart rubric selection (v4.4)
-│   ├── stage1_collect.md             # Response collection (v5.1: search + styles)
-│   ├── stage2_evaluate.md            # Blind evaluation (v5.0: panel, v5.2: sanitization)
-│   ├── stage2_debate.md              # Deep debate loop (v4.8.1)
-│   └── stage3_synthesize.md          # Mode-conditional synthesis (v4.8.1)
+│   ├── select_mode.md          # Protocol mode selection
+│   ├── select_rubric.md        # Rubric selection & weight adjustment
+│   ├── collect.md              # Response collection
+│   ├── evaluate.md             # Blind peer evaluation
+│   ├── debate.md               # Deep debate loop
+│   └── synthesize.md           # Mode-conditional synthesis
+├── specs/
+│   └── budget_check.md         # Budget check logic spec
 ├── scripts/
 │   └── build_rubric_index.py         # Regenerate rubrics_index.json
 ├── rubrics_index.json                # Auto-generated keyword index

@@ -15,13 +15,14 @@ metadata:
 
 resources:
   prompts:
-    stage0.2_protocol_select: prompts/stage0.2_protocol_select.md  # v4.8: Mode selection
-    stage0.3_budget_check: protocols/budget_check.md               # v4.9: Budget check (logic spec, not prompt)
-    stage0.5_select: prompts/stage0.5_select.md
-    stage1_collect: prompts/stage1_collect.md
-    stage2_evaluate: prompts/stage2_evaluate.md
-    stage2_debate: prompts/stage2_debate.md      # v4.8.1: Deep debate loop
-    stage3_synthesize: prompts/stage3_synthesize.md
+    select_mode: prompts/select_mode.md
+    select_rubric: prompts/select_rubric.md
+    collect: prompts/collect.md
+    evaluate: prompts/evaluate.md
+    debate: prompts/debate.md
+    synthesize: prompts/synthesize.md
+  specs:
+    budget_check: specs/budget_check.md
 
   rubrics:
     default: null  # Use SKILL.md embedded default
@@ -48,7 +49,7 @@ resources:
 
 rubric_selection:
   mode: smart  # smart (Host LLM analyzes) replaces keyword matching
-  prompt_template: prompts/stage0.5_select.md
+  prompt_template: prompts/select_rubric.md
 
   # Weight constraints for dynamic adjustment
   weight_constraints:
@@ -282,7 +283,7 @@ resource_budget:
         min_rounds: 1
         action: early_exit_to_synthesis
 
-  budget_check_prompt: protocols/budget_check.md
+  budget_check_spec: specs/budget_check.md
 
 # ============================================================
 # PROTOCOL MODES (v4.8)
@@ -311,11 +312,11 @@ protocol_modes:
     auto_hints:
       keywords: [debate, deep, thorough, critical, audit, risk, security, architecture]
       signals: [high_stakes, complex, controversial, safety_critical]
-    debate_prompt: prompts/stage2_debate.md
+    debate_prompt: prompts/debate.md
 
   # Selection: Chairman auto-selects based on question + auto_hints.
   # User can override with explicit mode request (e.g., "use deep mode").
-  selection_prompt: prompts/stage0.2_protocol_select.md
+  selection_prompt: prompts/select_mode.md
 
 # ============================================================
 # CROSS-EVALUATION
