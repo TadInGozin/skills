@@ -15,8 +15,8 @@ allowed-tools: Read
 
 You are the Chairman of the LLM Council. You will:
 1. Discover available external LLMs dynamically
-2. **Select Protocol Mode**: Quick, Standard, or Deep (Step 0.2)
-3. **Check Resource Budget**: Apply participant caps, initialize time tracking (Step 0.3)
+2. **Select Protocol Mode**: Quick, Standard, or Deep (Stage 0.2)
+3. **Check Resource Budget**: Apply participant caps, initialize time tracking (Stage 0.3)
 4. **Smart Select** the best evaluation rubric and adjust weights (Stage 0.5, skipped in Quick)
 5. Coordinate all LLMs to provide independent responses
 6. Conduct **evaluation** — cross-evaluation (Standard), debate loop (Deep), or skip (Quick)
@@ -28,7 +28,7 @@ You are the Chairman of the LLM Council. You will:
 
 ---
 
-## Step 0: Discover Available LLMs
+## Stage 0: Discover Available LLMs
 
 **Dynamically discover** available LLM MCP tools using multi-signal detection.
 
@@ -92,13 +92,13 @@ Is this an LLM tool? [y/n]
    - Participant 2+: External LLMs (sorted by detection score)
 
 3. Decision:
-   - At least 1 external LLM found → Proceed to Step 0.2
+   - At least 1 external LLM found → Proceed to Stage 0.2
    - No external LLM found → STOP. Do not use this skill.
 ```
 
 ---
 
-## Step 0.2: Select Protocol Mode (v4.8)
+## Stage 0.2: Select Protocol Mode (v4.8)
 
 Choose **Quick**, **Standard**, or **Deep** mode based on question analysis.
 
@@ -109,9 +109,9 @@ Mode Selection:
 3. If uncertain → default to Standard
 
 Mode Dispatch:
-  Quick:    Step 0 → Stage 1 → Stage 3           (skip rubric + evaluation)
-  Standard: Step 0 → Stage 0.5 → Stage 1 → Stage 2S → Stage 3  (full pipeline)
-  Deep:     Step 0 → Stage 0.5 → Stage 1 → Stage 2D → Stage 3  (debate loop)
+  Quick:    Stage 0 → Stage 1 → Stage 3           (skip rubric + evaluation)
+  Standard: Stage 0 → Stage 0.5 → Stage 1 → Stage 2S → Stage 3  (full pipeline)
+  Deep:     Stage 0 → Stage 0.5 → Stage 1 → Stage 2D → Stage 3  (debate loop)
 ```
 
 **Source of Truth**: `protocols/standard.yaml` → `protocol_modes`
@@ -119,7 +119,7 @@ Mode Dispatch:
 
 ---
 
-## Step 0.3: Resource Budget Check (v4.9)
+## Stage 0.3: Resource Budget Check (v4.9)
 
 Initialize budget and enforce limits at each stage transition.
 
@@ -138,7 +138,7 @@ Degradation reuses completed work (Stage 1 responses carry forward).
 ```
 
 **Source of Truth**: `protocols/standard.yaml` → `resource_budget`
-**Prompt**: `prompts/stage0.3_budget_check.md`
+**Logic Spec**: `protocols/budget_check.md`
 
 When degraded, output footer shows: `*LLM Council v4.9 | [original]→[actual] (degraded) | [count] participants*`
 
@@ -702,7 +702,7 @@ Applied after Stage 1, before Stage 2 anonymization.
 
 ### Tool Probe Verification (v5.2)
 
-After LLM detection (Step 0), send `"Respond with exactly: PONG"` to each candidate. Pass → confirmed LLM. Fail/timeout (10s) → exclude from participants.
+After LLM detection (Stage 0), send `"Respond with exactly: PONG"` to each candidate. Pass → confirmed LLM. Fail/timeout (10s) → exclude from participants.
 
 ### Sensitivity Routing (v5.2)
 

@@ -16,7 +16,7 @@ metadata:
 resources:
   prompts:
     stage0.2_protocol_select: prompts/stage0.2_protocol_select.md  # v4.8: Mode selection
-    stage0.3_budget_check: prompts/stage0.3_budget_check.md        # v4.9: Budget check
+    stage0.3_budget_check: protocols/budget_check.md               # v4.9: Budget check (logic spec, not prompt)
     stage0.5_select: prompts/stage0.5_select.md
     stage1_collect: prompts/stage1_collect.md
     stage2_evaluate: prompts/stage2_evaluate.md
@@ -282,7 +282,7 @@ resource_budget:
         min_rounds: 1
         action: early_exit_to_synthesis
 
-  budget_check_prompt: prompts/stage0.3_budget_check.md
+  budget_check_prompt: protocols/budget_check.md
 
 # ============================================================
 # PROTOCOL MODES (v4.8)

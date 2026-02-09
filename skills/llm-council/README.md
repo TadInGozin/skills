@@ -132,10 +132,10 @@ llm-council/
 │   ├── customer-support.yaml
 │   └── safety-critical.yaml
 ├── protocols/
-│   └── standard.yaml           # Source of truth for all config
+│   ├── standard.yaml           # Source of truth for all config
+│   └── budget_check.md         # Budget check logic spec (v4.9)
 ├── prompts/
 │   ├── stage0.2_protocol_select.md   # Mode selection (v4.8)
-│   ├── stage0.3_budget_check.md      # Budget check (v4.9)
 │   ├── stage0.5_select.md            # Smart rubric selection (v4.4)
 │   ├── stage1_collect.md             # Response collection (v5.1: search + styles)
 │   ├── stage2_evaluate.md            # Blind evaluation (v5.0: panel, v5.2: sanitization)

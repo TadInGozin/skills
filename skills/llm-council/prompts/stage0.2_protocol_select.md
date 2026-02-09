@@ -1,6 +1,9 @@
-# Step 0.2: Protocol Mode Selection
+# Stage 0.2: Protocol Mode Selection
 
-> Selects Quick, Standard, or Deep mode based on question analysis.
+> **Advanced Customization**
+> This file allows you to override the default mode selection prompt.
+> Default behavior is defined in [SKILL.md](../SKILL.md).
+> Only modify this file if you need custom behavior.
 > **Source of Truth**: `protocols/standard.yaml` → `protocol_modes`
 
 ## Template
@@ -50,3 +53,9 @@ Select the appropriate protocol mode for this question.
 |----------|------|-------------|----------|
 | `question` | string | The user's question | Yes |
 | `context` | string | Additional context | No |
+
+## Execution Notes
+
+1. This is the first prompt-based step — runs before any LLM participants are invoked
+2. If the user explicitly specifies a mode, skip this step and use their choice
+3. The selected mode determines participant count, evaluation style, and time budget

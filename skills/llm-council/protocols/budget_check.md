@@ -1,11 +1,11 @@
-# Step 0.3: Resource Budget Check
+# Stage 0.3: Resource Budget Check
 
 > Chairman performs this check at initialization and before each stage transition.
 > **Source of Truth**: `protocols/standard.yaml` → `resource_budget`
 
 ## When to Check
 
-1. **Initialization** (after Step 0.2): Set start_time, total_budget based on selected mode
+1. **Initialization** (after Stage 0.2): Set start_time, total_budget based on selected mode
 2. **Before Stage 0.5**: Check elapsed time
 3. **Before Stage 2**: Check elapsed time — may degrade Deep → Standard
 4. **Before each debate round** (Deep only): Check remaining time
