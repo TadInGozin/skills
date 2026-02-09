@@ -140,6 +140,15 @@ Provide evaluation in structured format:
 | `dynamic_weights` | object | Dynamic weights from Stage 0.5 (v4.4+) | No |
 | `core_weights` | object | Fixed Core6 weights for comparison (v4.4+) | No |
 
+## Panel Evaluation (v5.0)
+
+When **N ≥ 4** participants, use panel evaluation instead of full cross-evaluation:
+- Each response is assigned **3 randomly-selected evaluators** (excluding self)
+- Total evaluations: ~3N instead of N×(N-1)
+- When N < 4, use full cross-evaluation as before
+
+**Source of Truth**: `protocols/standard.yaml` → `cross_evaluation.panel_evaluation`
+
 ## Execution Notes
 
 1. **Blind Evaluation**: Do not try to identify which response is yours

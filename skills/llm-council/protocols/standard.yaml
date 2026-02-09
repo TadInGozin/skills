@@ -1,7 +1,7 @@
 # LLM Council - Standard Protocol Manifest v4.4
 # Manifest format: indexes prompts and rubrics, auto-detects evaluation criteria
 
-version: "4.9.0"
+version: "5.0.0"
 
 metadata:
   name: standard-council
@@ -324,6 +324,15 @@ protocol_modes:
 cross_evaluation:
   mandatory: true
   self_evaluation: false
+
+  # Panel evaluation (v5.0): reduces O(N²) to O(N) for large councils
+  panel_evaluation:
+    enabled: true
+    threshold: 4              # Use panel when N >= 4 participants
+    panel_size: 3             # Each response gets 3 randomly-assigned evaluators
+    assignment: random        # Random, non-overlapping panels
+    fallback: full_cross_eval # Use full cross-eval when N < threshold
+
   anonymization:
     shuffle_order: true
     relabel_responses: true

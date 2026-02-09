@@ -4,7 +4,7 @@ description: "Coordinate multiple LLMs for deliberation. Trigger words: council,
 license: MIT
 metadata:
   author: llm-council
-  version: "4.9.0"
+  version: "5.0.0"
   category: decision-making
 allowed-tools: Read
 ---
@@ -163,8 +163,10 @@ Replace keyword matching with intelligent analysis to:
 2. If match found: Read only the matched rubric YAML file
 3. If no match: Use default rubric
 4. Analyze question intent for weight adjustments
-5. Adjust weights within constraints
-6. Validate and output final weights
+5. **Adaptive dimensions (v5.0)**: May rewrite dimension descriptions for the specific question
+   (e.g., "Actionability" → "Specific API endpoints and code examples" for a technical question)
+6. Adjust weights within constraints
+7. Validate and output final weights
 ```
 
 ### Fast Matching (Token-Optimized)
@@ -352,16 +354,13 @@ Participant 3        Response B
 Each evaluator scores only OTHER participants' responses:
 
 ```
-+-----------------------------------------------------+
-|  Cross-Evaluation Matrix (N participants)           |
-|                                                     |
-|  Each participant:                                  |
-|  +-- Evaluates all responses EXCEPT their own       |
-|  +-- Returns scores for (N-1) responses             |
-|                                                     |
-|  Result: Each response receives (N-1) scores        |
-+-----------------------------------------------------+
+Full cross-eval (N < 4):           Panel eval (N ≥ 4, v5.0):
+  Each evaluator → N-1 responses     Each response → 3 random evaluators
+  Total: N×(N-1) evaluations         Total: ~3N evaluations
+  Cost: O(N²)                        Cost: O(N)
 ```
+
+**Source of Truth**: `protocols/standard.yaml` → `cross_evaluation.panel_evaluation`
 
 ### Evaluation Prompt Template
 
@@ -553,7 +552,7 @@ Technical details (scores, weights, rankings) go in a collapsible section.
 </details>
 
 ---
-*LLM Council v4.9 | [mode] mode | [count] participants*
+*LLM Council v5.0 | [mode] mode | [count] participants*
 ```
 
 ### Verbose Output (--verbose)
@@ -593,7 +592,7 @@ When detailed analysis is needed, expand all technical information:
 | [evaluator] | [response] | [variance/consistency] | [value] |
 
 ---
-*LLM Council v4.9 | [mode] mode | [count] participants*
+*LLM Council v5.0 | [mode] mode | [count] participants*
 ```
 
 ---

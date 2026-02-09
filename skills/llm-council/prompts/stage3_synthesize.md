@@ -57,7 +57,8 @@ As Chairman, synthesize the final answer based on the deliberation results.
 2. **Integrate Complementary Information**: Combine unique contributions from different responses
 3. **Correct Errors**: Fix any identified inaccuracies or issues
 4. **Address Disagreements**: Explain how disagreements were resolved
-5. **Present Clearly**: Provide a well-structured, complete final answer
+5. **Cite Evaluator Rationale**: Reference specific evaluator feedback that influenced the synthesis (v5.0)
+6. **Present Clearly**: Provide a well-structured, complete final answer
 {{/if}}
 
 {{#if include_dissent}}
@@ -75,6 +76,13 @@ As Chairman, synthesize the final answer based on the deliberation results.
 - Which insights were adopted and why
 - What was corrected or improved
 - How disagreements were resolved]
+
+### Key Evaluator Insights (v5.0)
+
+[Extract the most impactful rationale from evaluators:
+- Which evaluator feedback directly shaped the synthesis?
+- What specific criticisms led to corrections?
+- What praise confirmed which elements to keep?]
 
 ### Final Answer
 
