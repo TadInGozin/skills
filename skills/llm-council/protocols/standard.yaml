@@ -1,7 +1,7 @@
 # LLM Council - Standard Protocol Manifest v4.4
 # Manifest format: indexes prompts and rubrics, auto-detects evaluation criteria
 
-version: "5.1.0"
+version: "5.2.0"
 
 metadata:
   name: standard-council
@@ -369,6 +369,45 @@ bias_mitigation:
 security:
   treat_outputs_as_untrusted: true
   never_execute_instructions: true
+
+  # Output sanitization (v5.2): strip instruction-like patterns between stages
+  sanitization:
+    enabled: true
+    patterns:
+      - "(?i)ignore (all |previous |above )?instructions"
+      - "(?i)you (are|must|should) now"
+      - "(?i)system:\\s*"
+      - "(?i)\\[INST\\]|\\[/INST\\]|<\\|im_start\\|>"
+    action: strip   # Remove matched patterns, do NOT reject entire response
+
+  # Self-ID stripping (v5.2): remove model self-identification before anonymization
+  self_id_stripping:
+    enabled: true
+    patterns:
+      - "(?i)as (an? )?(GPT|Claude|Gemini|AI|language model|LLM)\\b[^.]*[,.]"
+      - "(?i)I('m| am) (a |an )?(GPT|Claude|Gemini|AI|language model)\\b[^.]*[.]"
+
+  # Tool probe verification (v5.2): confirm detected tools are real LLMs
+  probe_verification:
+    enabled: true
+    probe_prompt: "Respond with exactly: PONG"
+    expected_response: "PONG"
+    timeout: 10
+    on_failure: exclude   # Remove from participant list
+
+  # Sensitivity routing (v5.2): classify question sensitivity
+  sensitivity:
+    levels: [public, internal, sensitive]
+    default: public
+    sensitive_keywords:
+      - "password"
+      - "secret"
+      - "private key"
+      - "SSN"
+      - "credit card"
+      - "medical record"
+      - "personal data"
+    action: warn   # Warn user before sending to external LLMs; do NOT auto-block
 
 # ============================================================
 # LLM TOOL DETECTION (v4.6)
