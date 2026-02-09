@@ -52,6 +52,23 @@ Score each response on these dimensions (1-10 scale):
 | Relevance | 0.10 | Addresses the core of the question |
 {{/if}}
 
+## Anti-Bias Protocol
+
+⚠️ You MUST follow these rules to ensure fair evaluation:
+1. Focus ONLY on content quality — ignore writing style, length, and formatting preferences
+2. Do NOT attempt to identify which LLM authored each response
+3. Apply the SAME scoring standards consistently to all responses
+4. Justify EVERY score with specific content evidence, not subjective impressions
+
+## Hallucination Detection Checklist
+
+Before scoring, check each response for:
+- [ ] **Citation verifiability**: Are cited sources, papers, or URLs plausible and real?
+- [ ] **Factual claim check**: Are stated facts, statistics, or dates accurate?
+- [ ] **Data plausibility**: Do numbers, benchmarks, or metrics have realistic precision?
+
+**Red flags**: Overly specific statistics without sources, obscure references that cannot be verified, confident claims about future events, invented API/library names.
+
 ## Disqualification Rules
 
 Check for these issues:
@@ -86,6 +103,7 @@ Provide evaluation in structured format:
         "{{key}}": "<brief explanation>"{{#unless @last}},{{/unless}}
         {{/each}}
       },
+      "hallucination_flags": [],
       "disqualified": false,
       "disqualification_reason": null
     }

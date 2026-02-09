@@ -4,7 +4,7 @@ description: "Coordinate multiple LLMs for deliberation. Trigger words: council,
 license: MIT
 metadata:
   author: llm-council
-  version: "4.6.0"
+  version: "4.7.0"
   category: decision-making
 allowed-tools: Read
 ---
@@ -265,12 +265,22 @@ Both `core_score` and `overall_score` are calculated for each response.
 | **Actionability** | 10% | Recommendations are executable | 1-3: Vague; 4-6: Some actionable; 7-9: Actionable; 10: Ready to use |
 | **Relevance** | 10% | Addresses the core question | 1-3: Off-topic; 4-6: Related; 7-9: Relevant; 10: Precisely targeted |
 
+### Hallucination Detection (v4.7)
+
+Before scoring, evaluators check each response against a 3-point checklist:
+1. **Citation verifiability**: Are cited sources real and plausible?
+2. **Factual claim check**: Are stated facts and statistics accurate?
+3. **Data plausibility**: Do numbers have realistic precision?
+
+Flagged items are reported in `hallucination_flags`. See `prompts/stage2_evaluate.md` for the full checklist and red-flag patterns.
+
 ### Disqualification Rules
 
 | Condition | Action | Description |
 |-----------|--------|-------------|
 | Critical Factual Error | Score capped at 5 | Contains verifiable critical factual errors |
 | Fabricated Reference | Disqualify | Fabricates non-existent references, data, or sources |
+| Fabricated Data/API | Disqualify | Invents APIs, libraries, methods, or datasets |
 | Security Violation | Disqualify | Violates safety, privacy, or compliance requirements |
 
 ### Pre-processing: Anonymization
@@ -372,11 +382,26 @@ Host evaluates directly (no agent needed)
 ### Score Aggregation
 
 ```
-Final Score = Mean(all scores from other evaluators)
+1. Normalize: z-score standardize each evaluator's scores (removes scale bias)
+2. Aggregate: Final Score = Mean(normalized scores from other evaluators)
+3. Rank: Final ranking based on aggregated scores
 
-Each response receives (N-1) scores
-Final ranking based on aggregated scores
+Each response receives (N-1) scores.
 ```
+
+### Bias Detection (v4.7)
+
+After aggregation, check for evaluator bias. **Flag-only; do NOT adjust scores.**
+
+```
+For each evaluator:
+  - If any score deviates >2σ from cross-evaluator mean → flag
+  - If rank order differs significantly from consensus → flag
+
+Output: bias_flags[] in technical details (empty if no bias detected)
+```
+
+**Source of Truth**: `protocols/standard.yaml` → `bias_mitigation`
 
 ---
 
@@ -456,11 +481,12 @@ Technical details (scores, weights, rankings) go in a collapsible section.
 | ... | ... | ... |
 
 **Weight Adjustments**: [key adjustments if any]
+**Bias Flags**: [count] flags | [details if any]
 
 </details>
 
 ---
-*LLM Council v4.4 | [count] participants*
+*LLM Council v4.7 | [count] participants*
 ```
 
 ### Verbose Output (--verbose)
@@ -494,8 +520,13 @@ When detailed analysis is needed, expand all technical information:
 #### Disagreements & Resolution
 [What participants disagreed on and how it was resolved]
 
+#### Bias Flags
+| Evaluator | Response | Issue | Deviation |
+|-----------|----------|-------|-----------|
+| [evaluator] | [response] | [variance/consistency] | [value] |
+
 ---
-*LLM Council v4.4 | [count] participants*
+*LLM Council v4.7 | [count] participants*
 ```
 
 ---

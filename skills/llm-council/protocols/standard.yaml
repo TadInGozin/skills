@@ -1,7 +1,7 @@
 # LLM Council - Standard Protocol Manifest v4.4
 # Manifest format: indexes prompts and rubrics, auto-detects evaluation criteria
 
-version: "4.6.0"
+version: "4.7.0"
 
 metadata:
   name: standard-council
@@ -63,7 +63,10 @@ rubric_selection:
 
     # Combined constraints
     combined:
-      truth_anchor_sum: { min: 30 }  # accuracy + verifiability >= 30%
+      truth_anchor_sum:
+        min: 30  # accuracy + verifiability >= 30%
+        # Rationale: 30% prevents factually wrong responses from ranking first
+        # due to style alone. Based on Constitutional AI "truthfulness floor".
 
     total: 100
 
@@ -262,6 +265,28 @@ cross_evaluation:
     strip_metadata: true
     record_mapping: true
     reveal_timing: after_all_scores
+
+  # Score aggregation (v4.7)
+  score_aggregation:
+    method: mean
+    normalization: z_score  # Standardize each evaluator's scores before averaging
+    # Rationale: Different LLMs interpret the 1-10 scale differently.
+    # Z-score normalization removes systematic scale bias.
+
+# ============================================================
+# BIAS MITIGATION (v4.7)
+# ============================================================
+
+bias_mitigation:
+  # Pre-evaluation: anti-bias prompt injected into Stage 2
+  anti_bias_prompt: true
+
+  # Post-evaluation: statistical detection (flag-only, no score adjustment)
+  detection:
+    enabled: true
+    variance_threshold: 2.0    # Flag evaluator if any score deviates >2σ from mean
+    consistency_check: true     # Flag if evaluator ranks differ significantly from consensus
+    action: flag_only           # Report bias flags in output; do NOT adjust scores
 
 # ============================================================
 # SECURITY
