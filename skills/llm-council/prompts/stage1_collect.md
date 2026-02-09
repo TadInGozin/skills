@@ -32,6 +32,21 @@ Please answer the following question:
 **Context**:
 {{context}}
 {{/if}}
+
+{{#if pre_search_facts}}
+**Research Context** (from Chairman's pre-search):
+{{#each pre_search_facts}}
+- {{fact}} ([source]({{source_url}})) — relevance: {{relevance_score}}
+{{/each}}
+{{/if}}
+
+{{#if search_tools_available}}
+**Tool Access**: You may use web search to verify facts or find current information. Use your judgment on when searching adds value. Be mindful of time constraints.
+{{/if}}
+
+{{#if cognitive_style}}
+**Cognitive Style**: {{cognitive_style}}
+{{/if}}
 {{/if}}
 ```
 

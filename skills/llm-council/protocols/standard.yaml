@@ -1,7 +1,7 @@
 # LLM Council - Standard Protocol Manifest v4.4
 # Manifest format: indexes prompts and rubrics, auto-detects evaluation criteria
 
-version: "5.0.0"
+version: "5.1.0"
 
 metadata:
   name: standard-council
@@ -488,3 +488,52 @@ llm_tool_detection:
     enabled: true
     ask_when_score_between: [40, 69]
     show_evidence: true
+
+# ============================================================
+# SEARCH TOOL DETECTION (v5.1)
+# ============================================================
+# Reuses multi-signal framework from llm_tool_detection.
+
+search_tool_detection:
+  parameter_signals:
+    query_parameter: { score: 50, description: "Has 'query' or 'url' parameter" }
+  description_signals:
+    keywords: { score: 30, keywords: ["search", "web", "fetch", "browse", "internet"], case_insensitive: true }
+  name_signals:
+    patterns: { score: 40, patterns: ["search", "fetch", "web", "browse"], case_insensitive: true }
+  negative_signals:
+    code_keywords: { penalty: -20, keywords: ["database", "file", "directory"], case_insensitive: true }
+  thresholds:
+    definite_search: 60
+    not_search: 30
+
+# ============================================================
+# PARTICIPANT TOOLS (v5.1)
+# ============================================================
+
+participant_tools:
+  search:
+    enabled: true
+    chairman_pre_search:
+      enabled: true
+      max_queries: 3
+      output_format: structured  # { fact, source_url, relevance_score }
+    participant_autonomous: true   # ReAct-style, no explicit count limit
+    # Budget: controlled by resource_budget.time (v4.9), no separate search budget
+
+  citation:
+    inline: true                   # [1] markers in final answer
+    source_list: true              # URL list at bottom of output
+
+# ============================================================
+# COGNITIVE STYLES (v5.1)
+# ============================================================
+
+cognitive_styles:
+  enabled: true
+  styles:
+    analytical: "Focus on logical reasoning, evidence-based arguments, and structured analysis"
+    creative: "Explore unconventional angles, generate novel ideas, challenge assumptions"
+    adversarial: "Play devil's advocate, stress-test claims, identify weaknesses and edge cases"
+  assignment: auto                 # Chairman assigns based on question domain
+  default: null                    # No style hint if assignment is unclear

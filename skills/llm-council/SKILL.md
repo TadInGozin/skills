@@ -4,7 +4,7 @@ description: "Coordinate multiple LLMs for deliberation. Trigger words: council,
 license: MIT
 metadata:
   author: llm-council
-  version: "5.0.0"
+  version: "5.1.0"
   category: decision-making
 allowed-tools: Read
 ---
@@ -281,6 +281,36 @@ Use when no sub-agent support but MCP tools available.
 +-----------------------------------------------------+
 ```
 
+### Tool Access (v5.1)
+
+Participants may use search tools during response collection. Search tools are detected using the same multi-signal framework as LLM detection (see `protocols/standard.yaml` → `search_tool_detection`).
+
+```
+Hybrid Search:
+  1. Chairman pre-search: Up to 3 queries, structured output { fact, source_url, relevance_score }
+     - Injected into collection prompt as "Research Context"
+  2. Participant autonomous: ReAct-style, no explicit query limit
+     - Budget controlled by resource_budget.time (v4.9)
+
+Citation: Inline [1] markers in responses + source URL list in final output
+```
+
+### Cognitive Styles (v5.1)
+
+Chairman assigns a cognitive style hint to each participant to promote diverse perspectives:
+
+```
+Styles:
+  analytical  — logical reasoning, evidence-based, structured analysis
+  creative    — unconventional angles, novel ideas, challenge assumptions
+  adversarial — devil's advocate, stress-test claims, identify edge cases
+
+Assignment: auto (Chairman selects based on question domain)
+No style assigned if assignment is unclear.
+```
+
+**Source of Truth**: `protocols/standard.yaml` → `cognitive_styles`
+
 ### Timeout & Failure Handling
 
 - Timeout: 120 seconds per LLM call
@@ -552,7 +582,7 @@ Technical details (scores, weights, rankings) go in a collapsible section.
 </details>
 
 ---
-*LLM Council v5.0 | [mode] mode | [count] participants*
+*LLM Council v5.1 | [mode] mode | [count] participants*
 ```
 
 ### Verbose Output (--verbose)
@@ -592,7 +622,7 @@ When detailed analysis is needed, expand all technical information:
 | [evaluator] | [response] | [variance/consistency] | [value] |
 
 ---
-*LLM Council v5.0 | [mode] mode | [count] participants*
+*LLM Council v5.1 | [mode] mode | [count] participants*
 ```
 
 ---
