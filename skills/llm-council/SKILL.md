@@ -118,14 +118,14 @@ Degradation reuses completed work (Stage 1 responses carry forward).
 
 **Source of Truth**: `protocols/standard.yaml` → `resource_budget`
 
-When degraded, output footer shows: `*LLM Council v4.9 | [original]→[actual] (degraded) | [count] participants*`
+When degraded, output footer shows: `*LLM Council v5.2.1 | [original]→[actual] (degraded) | [count] participants*`
 
 ---
 
 ## Stage 0.5: Smart Rubric Selection & Weight Adjustment
 
 > **New in v4.4**: Host LLM intelligently selects rubric and adjusts weights based on question intent.
-> **Optimized in v4.5**: Fast keyword matching via `rubrics_index.json` reduces token usage by ~85%.
+> **Optimized in v4.5**: Fast keyword matching via `rubrics_index.json` reduces token usage by ~75%.
 
 ### Purpose
 
@@ -455,7 +455,7 @@ See `prompts/synthesize.md` for the full mode-conditional synthesis templates (S
 </details>
 
 ---
-*LLM Council v5.2 | [mode] mode | [count] participants*
+*LLM Council v5.2.1 | [mode] mode | [count] participants*
 ```
 
 ### Verbose Output (--verbose)
@@ -495,7 +495,7 @@ When detailed analysis is needed, expand all technical information:
 | [evaluator] | [response] | [variance/consistency] | [value] |
 
 ---
-*LLM Council v5.2 | [mode] mode | [count] participants*
+*LLM Council v5.2.1 | [mode] mode | [count] participants*
 ```
 
 ---

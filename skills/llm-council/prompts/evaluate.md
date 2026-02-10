@@ -78,8 +78,9 @@ Check for these issues:
 {{/each}}
 {{else}}
 - **Critical Factual Error**: Cap score at 5
-- **Fabricated References**: Disqualify
-- **Safety/Privacy Violation**: Disqualify
+- **Fabricated Reference**: Disqualify
+- **Fabricated Data/API**: Disqualify (invents APIs, libraries, methods, or datasets)
+- **Security Violation**: Disqualify
 {{/if}}
 
 ## Output Format

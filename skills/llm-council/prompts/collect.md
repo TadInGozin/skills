@@ -58,6 +58,9 @@ Please answer the following question:
 | `context` | string | Additional context or constraints | No |
 | `requirements` | array | Custom requirements list | No |
 | `custom_prompt` | string | Fully custom prompt (replaces default) | No |
+| `pre_search_facts` | array | Chairman's pre-search results `{fact, source_url, relevance_score}` | No |
+| `search_tools_available` | boolean | Whether search tools are available to participants | No |
+| `cognitive_style` | string | Cognitive style hint (analytical/creative/adversarial) | No |
 
 ## Execution Notes
 

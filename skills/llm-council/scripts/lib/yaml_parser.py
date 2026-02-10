@@ -190,6 +190,39 @@ def _consume_block(lines, start, parent_indent):
     return block, i
 
 
+def _split_top_level(s, delimiter=","):
+    """Split string on delimiter, respecting brackets and quotes."""
+    parts = []
+    current = []
+    depth_bracket = 0
+    depth_brace = 0
+    in_quote = None
+
+    for ch in s:
+        if ch in ('"', "'") and in_quote is None:
+            in_quote = ch
+        elif ch == in_quote:
+            in_quote = None
+        elif in_quote is None:
+            if ch == "[":
+                depth_bracket += 1
+            elif ch == "]":
+                depth_bracket -= 1
+            elif ch == "{":
+                depth_brace += 1
+            elif ch == "}":
+                depth_brace -= 1
+            elif ch == delimiter and depth_bracket == 0 and depth_brace == 0:
+                parts.append("".join(current))
+                current = []
+                continue
+        current.append(ch)
+
+    if current:
+        parts.append("".join(current))
+    return parts
+
+
 def _parse_inline_dict(s):
     """Parse `{ key: val, key2: val2 }` into a dict."""
     s = s.strip()
@@ -198,11 +231,17 @@ def _parse_inline_dict(s):
     if s.endswith("}"):
         s = s[:-1]
     result = {}
-    for pair in s.split(","):
+    for pair in _split_top_level(s):
         pair = pair.strip()
         if ":" in pair:
             k, _, v = pair.partition(":")
-            result[k.strip()] = _parse_scalar(v.strip())
+            v = v.strip()
+            if v.startswith("["):
+                result[k.strip()] = _parse_inline_list(v)
+            elif v.startswith("{"):
+                result[k.strip()] = _parse_inline_dict(v)
+            else:
+                result[k.strip()] = _parse_scalar(v)
     return result
 
 
@@ -213,7 +252,7 @@ def _parse_inline_list(s):
         s = s[1:]
     if s.endswith("]"):
         s = s[:-1]
-    return [_parse_scalar(item.strip()) for item in s.split(",") if item.strip()]
+    return [_parse_scalar(item.strip()) for item in _split_top_level(s) if item.strip()]
 
 
 def _unescape_double_quoted(s):
