@@ -140,11 +140,16 @@ llm-council/
 │   ├── evaluate.md             # Blind peer evaluation
 │   ├── debate.md               # Deep debate loop
 │   └── synthesize.md           # Mode-conditional synthesis
-├── specs/
-│   └── budget_check.md         # Budget check logic spec
 ├── scripts/
-│   └── build_rubric_index.py         # Regenerate rubrics_index.json
-├── rubrics_index.json                # Auto-generated keyword index
+│   ├── lib/                    # Shared library (YAML parser, I/O helpers)
+│   ├── build_rubric_index.py   # Regenerate rubrics_index.json
+│   ├── detect_llms.py          # Multi-signal LLM tool detection
+│   ├── check_budget.py         # Budget check with mode degradation
+│   ├── validate_weights.py     # Weight validation & normalization
+│   ├── score_results.py        # Score aggregation & bias detection
+│   ├── check_sensitivity.py    # Sensitivity classification
+│   └── sanitize_content.py     # Content sanitization
+├── rubrics_index.json          # Auto-generated keyword index
 └── README.md
 ```
 

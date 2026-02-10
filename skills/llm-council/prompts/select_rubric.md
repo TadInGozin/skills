@@ -101,11 +101,11 @@ Analyze the user's question and determine the best evaluation rubric with approp
 
 ## Execution Notes
 
-1. After Host LLM outputs the decision, apply post-validation:
-   - **Bounds Check**: Clip each weight to [min, max]
-   - **Truth Anchor Check**: If accuracy + verifiability < 30%, proportionally increase both
-   - **Normalize**: Adjust all weights to sum to 100%
-   - **Record**: Log any automatic adjustments in `validation.adjustments_made`
+1. After Host LLM outputs the decision, run deterministic post-validation:
+   ```bash
+   python3 scripts/validate_weights.py <<< '{"weights": <final_weights from LLM output>}'
+   ```
+   The script clips bounds, enforces truth anchor, normalizes to 100%, and reports adjustments.
 2. If confidence < 0.5, consider using `default` rubric
 3. Weight adjustments should have clear reasoning tied to question content
 4. Additional dimensions from domain rubrics inherit their defined weights as starting point

@@ -12,7 +12,7 @@
       "ideation",
       "solutions"
     ],
-    "description": "Innovative, out-of-the-box thinking",
+    "description": "Evaluation rubric for idea generation, creative solutions, and divergent thinking.",
     "extends": "default",
     "file": "brainstorming.yaml"
   },
@@ -30,7 +30,7 @@
       "authentication",
       "authorization"
     ],
-    "description": "Suggested changes would break existing functionality",
+    "description": "Evaluation rubric for code review tasks with security focus.",
     "extends": "default",
     "file": "code-review.yaml"
   },
@@ -47,7 +47,7 @@
       "character",
       "plot"
     ],
-    "description": "Captivating, emotionally resonant",
+    "description": "Evaluation rubric for stories, poems, scripts, and creative text generation.",
     "extends": "default",
     "file": "creative-writing.yaml"
   },
@@ -64,7 +64,7 @@
       "service",
       "de-escalate"
     ],
-    "description": "Warm, empathetic, de-escalating",
+    "description": "Evaluation rubric for customer service replies, ticket responses, and user communication.",
     "extends": "default",
     "file": "customer-support.yaml"
   },
@@ -82,7 +82,7 @@
       "troubleshoot",
       "diagnose"
     ],
-    "description": "|",
+    "description": "Evaluation rubric for error fixing, log analysis, and troubleshooting tasks.",
     "extends": "default",
     "file": "debugging.yaml"
   },
@@ -101,7 +101,7 @@
       "fact",
       "true or false"
     ],
-    "description": "|",
+    "description": "Evaluation rubric for factual question-answering tasks.",
     "extends": "default",
     "file": "factual-qa.yaml"
   },
@@ -118,7 +118,7 @@
       "convert to",
       "table"
     ],
-    "description": "Perfect schema compliance, valid parseable output",
+    "description": "Evaluation rubric for structured output, JSON conversion, and data extraction.",
     "extends": "default",
     "file": "information-extraction.yaml"
   },
@@ -135,7 +135,7 @@
       "learn",
       "beginner"
     ],
-    "description": "|",
+    "description": "Evaluation rubric for tutorials, how-to guides, and step-by-step instructions.",
     "extends": "default",
     "file": "instructional.yaml"
   },
@@ -153,7 +153,7 @@
       "rollout",
       "sprint"
     ],
-    "description": "Comprehensive risk analysis with contingency plans",
+    "description": "Evaluation rubric for project plans, roadmaps, and task breakdown.",
     "extends": "default",
     "file": "project-planning.yaml"
   },
@@ -172,7 +172,7 @@
       "dangerous",
       "safety"
     ],
-    "description": "Fails to recommend professional consultation for serious matters",
+    "description": "Evaluation rubric for medical, legal, financial, and high-risk advice.",
     "extends": "default",
     "file": "safety-critical.yaml"
   },
@@ -190,7 +190,7 @@
       "meeting notes",
       "minutes"
     ],
-    "description": "|",
+    "description": "Evaluation rubric for text summarization, meeting notes, and key point extraction.",
     "extends": "default",
     "file": "summarization.yaml"
   },
@@ -226,7 +226,7 @@
       "in japanese",
       "in spanish"
     ],
-    "description": "|",
+    "description": "Evaluation rubric for multilingual translation and localization tasks.",
     "extends": "default",
     "file": "translation.yaml"
   }

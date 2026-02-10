@@ -21,9 +21,6 @@ resources:
     evaluate: prompts/evaluate.md
     debate: prompts/debate.md
     synthesize: prompts/synthesize.md
-  specs:
-    budget_check: specs/budget_check.md
-
   rubrics:
     default: null  # Use SKILL.md embedded default
     domains:
@@ -283,7 +280,7 @@ resource_budget:
         min_rounds: 1
         action: early_exit_to_synthesis
 
-  budget_check_spec: specs/budget_check.md
+  # Budget check logic: scripts/check_budget.py
 
 # ============================================================
 # PROTOCOL MODES (v4.8)
