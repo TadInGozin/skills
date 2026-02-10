@@ -1,7 +1,7 @@
-# LLM Council - Standard Protocol Manifest v4.4
+# LLM Council - Standard Protocol Manifest v5.2.1
 # Manifest format: indexes prompts and rubrics, auto-detects evaluation criteria
 
-version: "5.2.0"
+version: "5.2.1"
 
 metadata:
   name: standard-council
@@ -80,154 +80,7 @@ rubric_selection:
       description: "Dynamic weights optimized for specific task"
       weights: dynamic  # Uses final_weights from Stage 0.5
 
-# ============================================================
-# RUBRIC DETECTION (Legacy - kept for reference)
-# ============================================================
-
-rubric_detection:
-  code-review:
-    keywords:
-      - "review"
-      - "code"
-      - "PR"
-      - "pull request"
-      - "refactor"
-      - "bug"
-      - "fix"
-    patterns:
-      - "review (this|my|the) (code|PR|pull request)"
-      - "(what|how).*(wrong|improve|better).*code"
-
-  factual-qa:
-    keywords:
-      - "what is"
-      - "who is"
-      - "when did"
-      - "where is"
-      - "how many"
-      - "explain"
-      - "define"
-    patterns:
-      - "^(what|who|when|where|why|how)\\b"
-      - "(explain|define|describe).*\\?"
-
-  technical-decision:
-    keywords:
-      - "should I"
-      - "which is better"
-      - "recommend"
-      - "choose"
-      - "decision"
-      - "tradeoff"
-      - "compare"
-    patterns:
-      - "(should|would).*(use|choose|pick|recommend)"
-      - "(which|what).*(better|best|prefer)"
-      - "(pros|cons|tradeoff|comparison)"
-
-  debugging:
-    priority: high  # Higher priority than code-review for error-related queries
-    keywords:
-      - "fix"
-      - "error"
-      - "exception"
-      - "crash"
-      - "debug"
-      - "not working"
-      - "failed"
-      - "stack trace"
-      - "troubleshoot"
-
-  summarization:
-    keywords:
-      - "summarize"
-      - "summary"
-      - "tl;dr"
-      - "recap"
-      - "key takeaways"
-      - "meeting notes"
-      - "digest"
-
-  creative-writing:
-    keywords:
-      - "story"
-      - "poem"
-      - "fiction"
-      - "narrative"
-      - "roleplay"
-      - "script"
-      - "creative"
-      - "novel"
-
-  brainstorming:
-    keywords:
-      - "brainstorm"
-      - "ideas"
-      - "suggest"
-      - "alternatives"
-      - "generate"
-      - "options"
-      - "what if"
-
-  translation:
-    keywords:
-      - "translate"
-      - "translation"
-      - "english to"
-      - "chinese to"
-      - "localization"
-
-  instructional:
-    keywords:
-      - "how to"
-      - "tutorial"
-      - "guide"
-      - "step by step"
-      - "teach me"
-      - "walk me through"
-
-  information-extraction:
-    keywords:
-      - "extract"
-      - "parse"
-      - "to json"
-      - "to csv"
-      - "structured"
-      - "schema"
-      - "convert to"
-
-  project-planning:
-    keywords:
-      - "plan"
-      - "roadmap"
-      - "milestone"
-      - "timeline"
-      - "schedule"
-      - "phases"
-      - "sprint"
-
-  customer-support:
-    keywords:
-      - "support"
-      - "customer"
-      - "ticket"
-      - "complaint"
-      - "apologize"
-      - "help desk"
-
-  safety-critical:
-    priority: highest  # Always check first for safety-related queries
-    keywords:
-      - "medical"
-      - "medication"
-      - "dosage"
-      - "diagnosis"
-      - "legal"
-      - "law"
-      - "contract"
-      - "tax"
-      - "investment"
-      - "financial advice"
+# Legacy rubric_detection moved to protocols/legacy_rubric_detection.yaml
 
 # ============================================================
 # PREREQUISITES
@@ -395,7 +248,7 @@ security:
 
   # Sensitivity routing (v5.2): classify question sensitivity
   sensitivity:
-    levels: [public, internal, sensitive]
+    levels: [public, sensitive]
     default: public
     sensitive_keywords:
       - "password"

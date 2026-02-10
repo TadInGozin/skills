@@ -81,6 +81,12 @@ def _parse_nested(content):
         if stripped_trimmed.startswith("- "):
             item_content = stripped_trimmed[2:].strip()
             if isinstance(parent, list):
+                # Quoted strings are always scalars, even if they contain ':'
+                if (item_content.startswith('"') and item_content.endswith('"')) or \
+                   (item_content.startswith("'") and item_content.endswith("'")):
+                    parent.append(_parse_scalar(item_content))
+                    i += 1
+                    continue
                 if ":" in item_content:
                     # List item is a map entry: - key: value
                     item_dict = {}

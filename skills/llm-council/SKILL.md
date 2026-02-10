@@ -4,7 +4,7 @@ description: "Coordinate multiple LLMs for deliberation. Trigger words: council,
 license: MIT
 metadata:
   author: llm-council
-  version: "5.2.0"
+  version: "5.2.1"
   category: decision-making
 allowed-tools: Read, Bash
 ---
@@ -109,6 +109,7 @@ Run at each stage transition:
 
 ```
 python3 scripts/check_budget.py <<< '{"elapsed": <seconds>, "current_mode": "<mode>"}'
+# total_budget, strict, trigger_ratio auto-loaded from standard.yaml
 ```
 
 Auto-loads budget config from `standard.yaml`. Output: `{"action": "continue|degrade|stop", "ratio": <float>, "degrade_to": "<mode>|null"}`.

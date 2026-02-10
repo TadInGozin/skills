@@ -44,12 +44,12 @@ Score each response on these dimensions (1-10 scale):
 
 | Dimension | Weight | Description |
 |-----------|--------|-------------|
-| Accuracy | 0.25 | Correctness and reliability of information |
-| Verifiability | 0.15 | Evidence and verifiable steps provided |
-| Completeness | 0.20 | Coverage of all relevant aspects |
-| Clarity | 0.15 | Clear and understandable expression |
-| Actionability | 0.15 | Specific, executable recommendations |
-| Relevance | 0.10 | Addresses the core of the question |
+| Accuracy | 30 | Correctness and reliability of information |
+| Verifiability | 15 | Evidence and verifiable steps provided |
+| Completeness | 20 | Coverage of all relevant aspects |
+| Clarity | 15 | Clear and understandable expression |
+| Actionability | 10 | Specific, executable recommendations |
+| Relevance | 10 | Addresses the core of the question |
 {{/if}}
 
 ## Anti-Bias Protocol
